@@ -688,6 +688,27 @@
   #cards-source{ margin:0 0 12px; }
   @media (max-width:600px){ #area-table-body .pill{ font-size:.58rem; padding:2px 5px; letter-spacing:0; } #area-table-body td:first-child{ min-width:78px; } #view-progress table.progress-table th, #view-progress table.progress-table td{ padding:8px 4px; } #view-progress table.progress-table th{ font-size:.6rem; letter-spacing:0; } .row-actions .btn.sm{ padding:5px 9px; } }
   .row-actions{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+
+  /* ---- v4: new-hire walkthrough fixes ---- */
+  .tile-grid.compact{ grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px; }
+  .tile-grid.compact .tile{ padding:8px 10px; }
+  .tile-grid.compact .meta, .tile-grid.compact .mini-bar{ display:none; }
+  .tile-grid.compact .t-name{ font-size:.82rem; }
+  .deck-done{ text-align:center; background:#f0f4fb; border:1px solid var(--border); border-radius:14px; padding:22px 16px; margin:8px auto 0; max-width:560px; }
+  .deck-done h3{ margin:0 0 6px; color:var(--navy); font-size:1.08rem; }
+  .deck-done p{ margin:0 0 14px; color:#3a4256; font-size:.92rem; }
+  .deck-done .btn{ margin:4px; }
+  .step-time{ color:var(--muted); font-weight:500; }
+  .words{ margin-top:6px; }
+  .next-step-row{ margin-top:12px; }
+  details.exam-jump{ margin:6px 0 10px; }
+  details.exam-jump > summary{ cursor:pointer; font-weight:700; color:var(--navy); font-size:.84rem; padding:4px 0; }
+  nav.tabs button.has-dot::after{ content:''; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--gold-light); margin-left:7px; vertical-align:middle; }
+  nav.tabs button.has-dot.active::after{ background:var(--navy); }
+  @media (max-width:600px){
+    .tile-grid.compact{ display:flex; overflow-x:auto; gap:8px; padding-bottom:6px; -webkit-overflow-scrolling:touch; }
+    .tile-grid.compact .tile{ flex:0 0 auto; white-space:nowrap; }
+  }
   .choice:disabled{ color:var(--text); opacity:1; cursor:default; }
   .choice.correct:disabled{ color:#0d5c34; }
   .choice.incorrect:disabled{ color:#8f2a20; }
@@ -764,7 +785,7 @@
     <div class="back-banner" id="cards-banner" style="display:none;"></div>
     <div class="card">
       <h2 class="section-title" id="cards-h" tabindex="-1">Flashcards</h2>
-      <p class="section-sub">Pick a category and flip through its cards, in any order. Cards marked ★ are exam-style: they're built from the questions that mirror the real exam.</p>
+      <p class="section-sub" id="cards-sub">Pick a category and flip through its cards, in any order. Cards marked ★ are exam-style: they're built from the questions that mirror the real exam.</p>
       <div class="tile-grid" id="cards-tiles" role="group" aria-label="Flashcard categories"></div>
     </div>
 
@@ -783,7 +804,8 @@
           <button class="btn ghost sm" id="fc-restart">Restart</button>
         </div>
         <div class="fc-progress" id="fc-progress-label" aria-live="polite"></div>
-        <div class="fc-wrap">
+        <div class="deck-done" id="fc-done" style="display:none;" aria-live="polite"></div>
+        <div class="fc-wrap" id="fc-wrap">
           <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Flashcard. Press Enter or Space to flip it. Use the left and right arrow keys to change cards.">
             <div class="inner">
               <div class="face front" id="fc-front"></div>
@@ -800,7 +822,7 @@
             <button class="btn review sm" id="fc-reviewagain">↻ Review again</button>
           </div>
         </div>
-        <div class="next-actions" style="justify-content:center;"><button class="btn ghost" id="cards-to-quiz">Quiz me on this category →</button></div>
+        <div class="next-actions" id="fc-next-actions" style="justify-content:center;"><button class="btn ghost" id="cards-to-quiz">Quiz me on this category →</button></div>
       </div>
 
       <div id="cards-handout" style="display:none;">
@@ -839,7 +861,7 @@
     <div id="quiz-pick">
       <div class="card">
         <h2 class="section-title" id="quiz-h" tabindex="-1">Quizzes</h2>
-        <p class="section-sub">Pick a category, or mix them all, then choose a length. After every answer you'll see why it's right. Most questions are written in the exam's style.</p>
+        <p class="section-sub" id="quiz-sub">Pick a category, or mix them all, then choose a length. After every answer you'll see why it's right. Most questions are written in the exam's style.</p>
         <div class="tile-grid" id="quiz-tiles" role="group" aria-label="Quiz categories"></div>
       </div>
       <div class="card" id="quiz-setup-card">
@@ -870,11 +892,12 @@
         <div id="quiz-score-sub" style="color:var(--muted); margin-top:4px;"></div>
       </div>
       <div style="text-align:center; margin:16px 0;">
+        <button class="btn gold" id="quiz-continue" style="display:none;">Back to the Guided Path →</button>
         <button class="btn gold" id="quiz-retry">Try again</button>
         <button class="btn ghost" id="quiz-back">Back to quizzes</button>
         <button class="btn ghost" id="quiz-to-cards">Study this category's flashcards</button>
       </div>
-      <h3 style="font-size:.95rem; color:var(--navy);">Review your answers</h3>
+      <h3 style="font-size:.95rem; color:var(--navy);" id="quiz-review-title">Review your answers</h3>
       <div id="quiz-review-list"></div>
     </div>
   </section>
@@ -895,8 +918,8 @@
           <button class="btn gold" id="exam-start-sim" style="padding:12px 22px; font-size:.92rem;">⏱ Timed mode</button>
         </div>
         <div style="display:flex; gap:22px; justify-content:center; flex-wrap:wrap; margin-top:16px; font-size:.82rem; color:var(--muted); text-align:left;">
-          <div style="max-width:260px;"><b style="color:var(--navy);">Study mode</b> — untimed. See whether you're right and read the explanation right after each question. Start here.</div>
-          <div style="max-width:260px;"><b style="color:var(--navy);">Timed mode</b> — a 75-minute timer and no feedback until you submit, followed by a results report by content area. Use this closer to test day.</div>
+          <div style="max-width:260px;"><b style="color:var(--navy);">Study mode</b> — untimed, about 75–90 minutes. See whether you're right and read the explanation right after each question. Best to start here. If you stop, your place is saved on this device.</div>
+          <div style="max-width:260px;"><b style="color:var(--navy);">Timed mode</b> — a 75-minute timer and no feedback until you submit, followed by a results report by content area. Use this closer to test day. Don't start it unless you have the full time.</div>
         </div>
       </div>
     </div>
@@ -917,8 +940,11 @@
         <span class="clock" id="exam-clock">75:00</span>
       </div>
       <div class="q-progress-bar"><div class="fill" id="exam-progress-fill"></div></div>
-      <div class="exam-nav-grid" id="exam-nav-grid"></div>
-      <div class="exam-nav-legend"><span><span class="sw current"></span>Current</span><span><span class="sw answered"></span>Answered</span><span><span class="sw blank"></span>Not answered yet — click any number to jump straight there</span></div>
+      <details class="exam-jump" id="exam-jump" open>
+        <summary>Jump to a question</summary>
+        <div class="exam-nav-grid" id="exam-nav-grid"></div>
+        <div class="exam-nav-legend"><span><span class="sw current"></span>Current</span><span><span class="sw answered"></span>Answered</span><span><span class="sw blank"></span>Not answered yet — click any number to jump straight there</span></div>
+      </details>
       <div style="font-size:.75rem; color:var(--muted); margin-bottom:8px;" id="exam-section-label"></div>
       <div class="q-text" id="exam-question"></div>
       <div class="choices" id="exam-choices"></div>
@@ -930,6 +956,7 @@
           <button class="btn gold" id="exam-next" style="display:none;">Next &rarr;</button>
         </div>
       </div>
+      <div style="text-align:center; margin-top:12px;"><button class="btn ghost sm" id="exam-quit">Quit this exam</button></div>
     </div>
 
     <div class="card" id="exam-review-gate-card" style="display:none;">
@@ -2108,6 +2135,12 @@ const REF_GLANCE = [
    HELPERS
    ========================================================= */
 const $ = id => document.getElementById(id);
+/* Scroll to the top of the page. On phones, scroll just past the big title so the
+   tab bar and the content sit at the top of the screen. */
+function scrollToTop(){
+  const h = document.querySelector('header.top');
+  window.scrollTo(0, (window.innerWidth <= 600 && h) ? h.offsetHeight : 0);
+}
 function shuffle(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){
@@ -2282,7 +2315,7 @@ function showView(view){
   else if(view==='exam') renderExamIntro();
   else if(view==='progress') renderProgress();
   else if(view==='ref') renderRef();
-  window.scrollTo(0,0);
+  scrollToTop();
   const h = document.querySelector('#view-'+view+' h2[tabindex="-1"]');
   if(h) h.focus({preventScroll:true});
 }
@@ -2305,7 +2338,7 @@ function deckFor(key, mode){
   const notes = PRACTICE_QS.filter(q=>q.area===key).map(q=> noteCard(q, key));
   if(mode==='exam') return notes;
   const base = catByKey(key).flashcards.map((c,i)=> ({ id:key+'-'+i, kind:'base', f:c.f, b:c.b }));
-  return notes.concat(base);
+  return base.concat(notes);      // basics first, then how the exam asks the same ideas
 }
 
 /* =========================================================
@@ -2350,17 +2383,36 @@ const PATH_PARTS = {
   2:'Part 2 · Learn the 7 content areas',
   3:'Part 3 · Test yourself'
 };
+/* Rough pacing hints only: reading time + about 25 seconds per flashcard + one 10-question quiz. */
+function stepMinutes(s){
+  const r5 = x => Math.max(5, Math.round(x/5)*5);
+  if(s.id==='intro') return 5;
+  if(s.area) return r5(3 + s.prog.deckLen*0.4 + 8);
+  if(s.id==='mock-study') return 80;
+  return EXAM_SECONDS/60;
+}
+const fmtMin = m => m >= 60 ? `${Math.floor(m/60)} h${m%60 ? ' '+(m%60)+' min' : ''}` : `${m} min`;
 function stepSub(s, st){
-  if(s.id==='intro') return s.done ? 'Done' : 'About 2 minutes';
+  if(s.id==='intro') return s.done ? 'Done' : `About ${stepMinutes(s)} minutes`;
   if(s.area){
     const a = s.prog;
     if(s.done) return 'Complete';
-    if(!s.started) return 'Not started';
+    if(!s.started) return `Not started · about ${stepMinutes(s)} min`;
     return `${a.reviewed} of ${a.deckLen} cards reviewed · quiz ${a.best===null ? 'not taken yet' : 'best '+a.best+'%'}`;
   }
-  if(s.id==='mock-study') return st.studyAttempts.length ? `Best score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%` : 'Not taken yet';
-  return `${st.streak} of 2 passing timed runs in a row`;
+  if(s.id==='mock-study') return st.studyAttempts.length ? `Best score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%` : `Not taken yet · about ${fmtMin(stepMinutes(s))}`;
+  return `${st.streak} of 2 passing timed runs in a row · each run is ${fmtMin(stepMinutes(s))}`;
 }
+const WORDS = [
+  ['Deed', 'The document that transfers ownership of a property.'],
+  ['Lien', 'A claim against a property for a debt, such as an unpaid loan or tax.'],
+  ['Easement', "A right to use part of someone else's land, such as for a utility line or an access road."],
+  ['Encumbrance', 'Any claim or limit on a property that can reduce its value or use. Liens and easements are examples.'],
+  ['Recording', "Filing a document in the county's public records so everyone can see it."],
+  ['Escrow', 'A neutral third party holds money and documents until the deal is ready to close.'],
+  ['Underwriter', 'The insurance company that takes the risk and pays valid claims.'],
+  ['Title plant', "A title company's own indexed copy of property records, used to search title quickly."]
+];
 function introBody(){
   return `<p>Every question on the exam fits somewhere in this story. Read it once, then move on to the content areas.</p>
     <ol class="flow">
@@ -2373,7 +2425,9 @@ function introBody(){
       <li><b>Recording.</b> The new deed and any new loan documents are recorded with the county clerk and recorder.</li>
       <li><b>Policy.</b> After closing, the title company issues the owner's policy for the buyer and the loan policy for the lender.</li>
     </ol>
-    <p class="stat-line">The exam has ${EXAM_TOTAL} questions across ${CATS.length} content areas. Colorado law is the biggest area. The next ${CATS.length} steps teach one area at a time.</p>
+    <h3 style="font-size:1rem; color:var(--navy); margin:18px 0 0;">Words you'll hear a lot</h3>
+    <div class="idea-list words">${WORDS.map(([t,d])=> `<div class="idea"><b>${escHtml(t)}</b><span>${escHtml(d)}</span></div>`).join('')}</div>
+    <p class="stat-line">The exam has ${EXAM_TOTAL} questions across ${CATS.length} content areas. Colorado law is the biggest area. The next ${CATS.length} steps teach one area at a time. Items marked <b>★ Exam-style</b> are written the way the real exam asks.</p>
     <div class="step-actions">${state.introDone
       ? '<span class="done-line" style="margin:0;">✓ Done</span><button class="btn ghost sm" data-act="intro-undo">Mark as not done</button>'
       : '<button class="btn gold" data-act="intro-done">I\'ve read this. Mark done ✓</button>'}</div>`;
@@ -2394,23 +2448,31 @@ function areaBody(s){
     </div>
     ${s.done
       ? `<div class="done-line">✓ Step complete. You can still open the cards and quiz any time.</div>`
-      : `<p class="stat-line">This step is complete when you've reviewed most of the flashcards (${Math.round(AREA_DONE.cards*100)}%) and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions.</p>`}`;
+      : `<p class="stat-line">This step is complete when you've reviewed most of the flashcards (${Math.round(AREA_DONE.cards*100)}%) and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions. Start with the basic cards, then the ★ exam-style ones.</p>`}`;
+}
+function nextStepButton(s, st){
+  const nx = st.steps[s.n];
+  if(!s.done || !nx) return '';
+  return `<div class="next-step-row"><button class="btn gold" data-act="open-step" data-id="${escHtml(nx.id)}">Next: ${nx.area ? 'Area '+areaNumber(nx.area)+': ' : ''}${escHtml(nx.title)} →</button></div>`;
 }
 function mockBody(s, st){
+  const inProg = state.exam.active && !state.exam.submitted;
+  const openLabel = inProg ? 'Resume your mock exam →' : 'Open the Mock Exam →';
   if(s.id==='mock-study'){
     return `<p>Take one full-length practice exam with feedback after every question. This is where you get used to how the exam asks things.</p>
-      <div class="step-actions"><button class="btn gold" data-act="mock">Open the Mock Exam →</button></div>
+      <p class="stat-line">Plan on about 75 to 90 minutes. You can stop and pick it up later; your place is saved on this device. Every question you miss is saved to <b>My Progress</b> so you can drill it afterward.</p>
+      <div class="step-actions"><button class="btn gold" data-act="mock">${openLabel}</button></div>
       ${s.done ? `<div class="done-line">✓ Done. Your best Study-mode score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%.</div>` : ''}`;
   }
   return `<p>The real-exam run: ${EXAM_TOTAL} questions in ${EXAM_SECONDS/60} minutes, with no feedback until the end. Score ${PASS_SCORE}%+ on two timed runs in a row.</p>
-    <div class="step-actions"><button class="btn gold" data-act="mock">Open the Mock Exam →</button></div>
+    <div class="step-actions"><button class="btn gold" data-act="mock">${openLabel}</button></div>
     ${s.done ? '<div class="done-line">✓ Done. Two passing timed runs in a row. You\'re ready to schedule your exam.</div>'
              : (st.sims.length ? `<p class="stat-line">Your last timed ${st.sims.length===1?'run':'runs'}: ${st.sims.slice(-2).map(a=>a.score+'%').join(', ')}.</p>` : '')}`;
 }
 function stepBody(s, st){
   if(s.id==='intro') return introBody();
-  if(s.area) return areaBody(s);
-  return mockBody(s, st);
+  if(s.area) return areaBody(s) + nextStepButton(s, st);
+  return mockBody(s, st) + nextStepButton(s, st);
 }
 function renderPathSteps(){
   const st = pathStatus();
@@ -2437,7 +2499,8 @@ function renderPath(){
     .map(([n,l])=> `<div class="s"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
   const st = renderPathSteps();
   const pct = Math.round(100*st.doneCount/st.steps.length);
-  $('path-progress').innerHTML = `<div class="stat-line" style="margin:0;"><b>${st.doneCount} of ${st.steps.length}</b> steps complete</div>
+  const totalMin = st.steps.reduce((sum, x)=> sum + stepMinutes(x), 0);
+  $('path-progress').innerHTML = `<div class="stat-line" style="margin:0;"><b>${st.doneCount} of ${st.steps.length}</b> steps complete · about ${Math.round(totalMin/60)} hours in total, best spread over several days</div>
     <div class="mini-bar" role="img" aria-label="${pct}% of the Guided Path complete" style="margin:6px auto 16px;"><i style="width:${pct}%"></i></div>`;
   const n = st.next, started = st.doneCount > 0 || st.areas.some(a=> a.status!=='new');
   let label;
@@ -2491,6 +2554,7 @@ $('path-steps').addEventListener('click', e=>{
   else if(act==='handout') openCards('colaw', { fromPath:true, source:'handout' });
   else if(act==='quiz') openQuiz(key, { fromPath:true });
   else if(act==='mock') showView('exam');
+  else if(act==='open-step') openPathStep(b.dataset.id);
   else if(act==='intro-done' || act==='intro-undo'){
     state.introDone = act==='intro-done';
     persist();
@@ -2506,6 +2570,14 @@ $('exam-map').addEventListener('click', e=>{
   if(b) openPathStep('area:'+b.dataset.area);
 });
 
+/* Back to the step you came from; if that step is finished now, open the next one. */
+function returnToPath(){
+  const f = state.fromPath;
+  if(!f){ showView('path'); return; }
+  const st = pathStatus();
+  const s = st.steps.find(x=> x.id === f.id);
+  openPathStep(s && s.done && st.next ? st.next.id : f.id);
+}
 /* The banner shown on Flashcards / Quizzes when you arrived from a Guided Path step. */
 function renderBackBanner(el){
   const f = state.fromPath;
@@ -2517,7 +2589,7 @@ function renderBackBanner(el){
 ['cards-banner','quiz-banner'].forEach(id=>{
   $(id).addEventListener('click', e=>{
     if(!e.target.closest('button[data-back-path]') || !state.fromPath) return;
-    openPathStep(state.fromPath.id);
+    returnToPath();
   });
 });
 
@@ -2613,7 +2685,14 @@ function keepFocus(container, render){
   render();
   if(sel){ const again = container.querySelector(sel); if(again) again.focus({preventScroll:true}); }
 }
+/* Scroll a one-row tile strip (phones) so the chosen tile is in view. */
+function centerActive(grid){
+  const a = grid.querySelector('.tile.active');
+  if(a && grid.scrollWidth > grid.clientWidth) grid.scrollLeft = a.offsetLeft - (grid.clientWidth - a.offsetWidth) / 2;
+}
 function renderCardTiles(){
+  $('cards-tiles').classList.toggle('compact', !!state.cards.area);
+  $('cards-sub').style.display = state.cards.area ? 'none' : '';
   keepFocus($('cards-tiles'), ()=>{
     $('cards-tiles').innerHTML = CATS.map(c=>{
       const a = areaProgress(c.key);
@@ -2626,6 +2705,7 @@ function renderCardTiles(){
       </button>`;
     }).join('');
   });
+  centerActive($('cards-tiles'));
 }
 function renderCards(){
   renderBackBanner($('cards-banner'));
@@ -2686,6 +2766,7 @@ function rebuildDeck(){
   let deck = deckFor(state.fc.catKey, state.fc.deckMode);
   if(state.fc.hideKnown) deck = deck.filter(c=> !p.known.has(c.id));
   state.fc.deck = deck;
+  state.fc.done = false;
 }
 function startFlashcards(key){
   state.fc.catKey = key;
@@ -2725,6 +2806,7 @@ function markCard(knowIt){
   const card = state.fc.deck[state.fc.idx];
   if(!card) return;
   const p = state.progress[state.fc.catKey];
+  const wasLast = state.fc.idx === state.fc.deck.length - 1;
   p.reviewed.add(card.id);
   if(knowIt) p.known.add(card.id); else p.known.delete(card.id);
   persist();
@@ -2733,15 +2815,49 @@ function markCard(knowIt){
     state.fc.deck.splice(state.fc.idx, 1);
     if(state.fc.idx >= state.fc.deck.length) state.fc.idx = 0;
     state.fc.flipped = false;
-    renderFlashcard();
-  } else stepCard(1);
+  } else if(!wasLast){
+    state.fc.idx++;
+    state.fc.flipped = false;
+  }
+  /* Finishing the last card of the pass shows what to do next instead of looping silently. */
+  if(wasLast || !state.fc.deck.length) state.fc.done = true;
+  renderFlashcard();
 }
+function renderDeckDone(){
+  const key = state.fc.catKey;
+  const full = deckFor(key, state.fc.deckMode);
+  const p = state.progress[key];
+  const known = full.filter(c=> p.known.has(c.id)).length;
+  const left = full.length - known;
+  const fromHere = !!state.fromPath && state.fromPath.id === 'area:'+key;
+  $('fc-done').innerHTML = `<h3>You've been through the whole deck</h3>
+    <p>${known} of ${full.length} marked "I know this"${left ? `, ${left} still to review.` : '. Nicely done.'}</p>
+    ${left ? `<button class="btn gold" data-done="missed">Review the ${left} I haven't marked known</button>` : ''}
+    <button class="btn ${left ? 'ghost' : 'gold'}" data-done="quiz">Take the ${escHtml(AREA_SHORT[key])} quiz →</button>
+    ${fromHere ? '<button class="btn ghost" data-done="path">Back to the Guided Path</button>' : ''}
+    <button class="btn ghost" data-done="again">Start over</button>`;
+}
+$('fc-done').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-done]');
+  if(!b) return;
+  const key = state.fc.catKey, act = b.dataset.done;
+  const fromHere = !!state.fromPath && state.fromPath.id === 'area:'+key;
+  if(act === 'missed'){ state.fc.hideKnown = true; rebuildDeck(); state.fc.idx = 0; syncDeckControls(); renderFlashcard(); }
+  else if(act === 'quiz') openQuiz(key, { fromPath:fromHere });
+  else if(act === 'path') returnToPath();
+  else { rebuildDeck(); state.fc.idx = 0; renderFlashcard(); }
+});
 function renderFlashcard(){
   const deck = state.fc.deck;
   const card = deck[state.fc.idx];
   const p = state.progress[state.fc.catKey];
   $('flashcard').classList.remove('flipped');
   state.fc.flipped = false;
+  const done = !!state.fc.done;
+  $('fc-done').style.display = done ? '' : 'none';
+  $('fc-wrap').style.display = done ? 'none' : '';
+  $('fc-next-actions').style.display = done ? 'none' : 'flex';
+  if(done){ renderDeckDone(); $('fc-progress-label').textContent = 'End of the deck'; return; }
   if(!card){
     $('fc-front').innerHTML = '<div class="qstem">Every card here is marked as known. Uncheck "Hide cards I know" to review them again.</div>';
     $('fc-back').innerHTML = '';
@@ -2760,7 +2876,7 @@ function renderFlashcard(){
 $('fc-deck-all').addEventListener('click', ()=>{ state.fc.deckMode='all'; rebuildDeck(); state.fc.idx=0; syncDeckControls(); renderFlashcard(); });
 $('fc-deck-exam').addEventListener('click', ()=>{ state.fc.deckMode='exam'; rebuildDeck(); state.fc.idx=0; syncDeckControls(); renderFlashcard(); });
 $('fc-hide-known').addEventListener('change', ()=>{ state.fc.hideKnown = $('fc-hide-known').checked; rebuildDeck(); state.fc.idx=0; renderFlashcard(); });
-$('fc-shuffle').addEventListener('click', ()=>{ state.fc.deck = shuffle(state.fc.deck); state.fc.idx = 0; renderFlashcard(); });
+$('fc-shuffle').addEventListener('click', ()=>{ state.fc.deck = shuffle(state.fc.deck); state.fc.idx = 0; state.fc.done = false; renderFlashcard(); });
 $('fc-restart').addEventListener('click', ()=>{ rebuildDeck(); state.fc.idx = 0; renderFlashcard(); });
 $('fc-flip').addEventListener('click', flipCard);
 $('flashcard').addEventListener('click', flipCard);
@@ -2872,6 +2988,8 @@ function setQuizPhase(phase){
   $('quiz-results-card').style.display = phase === 'results' ? '' : 'none';
 }
 function renderQuizTiles(){
+  $('quiz-tiles').classList.toggle('compact', !!state.qz.sel);
+  $('quiz-sub').style.display = state.qz.sel ? 'none' : '';
   keepFocus($('quiz-tiles'), ()=>{
     const tile = (sel, num, name, extra, special) => {
       const active = state.qz.sel === sel;
@@ -2887,6 +3005,7 @@ function renderQuizTiles(){
         return tile(c.key, areaNumber(c.key), AREA_SHORT[c.key], `${plural(quizPool(c.key,'mixed').length,'question')}${best!==null ? ' · best '+best+'%' : ''}`, false);
       }).join('');
   });
+  centerActive($('quiz-tiles'));
 }
 function lenOptions(sel){
   const n = quizPool(sel, state.qz.source).length;
@@ -2960,7 +3079,7 @@ function startQuiz(){
   q.sim = {};
   setQuizPhase('play');
   renderQuizQuestion();
-  window.scrollTo(0,0);
+  scrollToTop();
 }
 function renderQuizQuestion(){
   const q = state.qz;
@@ -3066,15 +3185,25 @@ function finishQuiz(){
   if(isArea && total < 10) sub += ' (Quizzes of 10+ questions count toward finishing the area.)';
   $('quiz-score-sub').textContent = sub;
   $('quiz-to-cards').style.display = isArea ? '' : 'none';
-  $('quiz-review-list').innerHTML = q.items.map((it,i)=>{
-    const a = q.answers[i], qq = examQ(it);
+  /* From the Guided Path, the main button goes straight back to it. */
+  const fromHere = isArea && !!state.fromPath && state.fromPath.id === 'area:'+q.sel;
+  const cont = $('quiz-continue');
+  cont.style.display = fromHere ? '' : 'none';
+  if(fromHere) cont.textContent = areaProgress(q.sel).status === 'done' ? 'Step complete ✓ Continue →' : 'Back to the Guided Path →';
+  $('quiz-retry').className = fromHere ? 'btn ghost' : 'btn gold';
+  /* Missed questions come first: that's what to learn from. */
+  const missed = q.answers.filter(a=> a && !a.correct).length;
+  $('quiz-review-title').textContent = missed ? `Review your answers: ${missed} missed (shown first)` : 'Review your answers: you got every question right';
+  const reviewOrder = q.items.map((it,i)=> i).sort((x,y)=> (q.answers[x].correct ? 1 : 0) - (q.answers[y].correct ? 1 : 0));
+  $('quiz-review-list').innerHTML = reviewOrder.map(i=>{
+    const it = q.items[i], a = q.answers[i], qq = examQ(it);
     return `<div class="review-item ${a.correct?'right':'wrong'}">
       <div style="font-weight:600; margin-bottom:4px;">${qq.q}</div>
       <div style="color:var(--muted); font-size:.85rem;">Your answer: ${qq.choices[a.chosenIdx]}${a.correct?'':`<br>Correct answer: ${qq.choices[qq.correct]}`}</div>
       <div style="margin-top:6px; font-size:.85rem;">${qq.exp}</div>
     </div>`;
   }).join('');
-  window.scrollTo(0,0);
+  scrollToTop();
 }
 $('quiz-start').addEventListener('click', startQuiz);
 $('quiz-next').addEventListener('click', ()=>{
@@ -3084,7 +3213,8 @@ $('quiz-next').addEventListener('click', ()=>{
 });
 $('quiz-quit').addEventListener('click', ()=>{ setQuizPhase('pick'); renderQuizHub(); });
 $('quiz-retry').addEventListener('click', startQuiz);
-$('quiz-back').addEventListener('click', ()=>{ setQuizPhase('pick'); renderQuizHub(); window.scrollTo(0,0); });
+$('quiz-continue').addEventListener('click', ()=> returnToPath());
+$('quiz-back').addEventListener('click', ()=>{ setQuizPhase('pick'); renderQuizHub(); scrollToTop(); });
 $('quiz-to-cards').addEventListener('click', ()=> openCards(state.qz.sel, { fromPath: !!state.fromPath && state.fromPath.id === 'area:'+state.qz.sel }));
 
 /* =========================================================
@@ -3127,6 +3257,7 @@ function showExamCard(which){
 function resetExamToIntro(){
   if(state.exam.timerId) clearInterval(state.exam.timerId);
   state.exam.timerId = null;
+  if(state.exam.submitted || !state.exam.active) clearExamProgress();
   showExamCard('intro');
   renderExamIntro();
 }
@@ -3152,7 +3283,57 @@ function startExam(mode, items){
     clock.classList.remove('low');
   }
   renderExamQuestion();
-  window.scrollTo(0,0);
+  scrollToTop();
+}
+/* An exam in progress is saved on this device, so a refresh or a locked phone doesn't lose it. */
+const EXAM_SAVE_KEY = 'coTitleExamInProgress_v1';
+function updateExamDot(){
+  const on = !!state.exam.active && !state.exam.submitted;
+  const btn = document.querySelector('.tab-btn[data-view="exam"]');
+  if(!btn) return;
+  btn.classList.toggle('has-dot', on);
+  if(on) btn.setAttribute('aria-label', 'Mock Exam, exam in progress'); else btn.removeAttribute('aria-label');
+}
+function saveExamProgress(){
+  const ex = state.exam;
+  try {
+    if(!ex.active || ex.submitted) localStorage.removeItem(EXAM_SAVE_KEY);
+    else localStorage.setItem(EXAM_SAVE_KEY, JSON.stringify({ v:1, mode:ex.mode, keys:ex.questions.map(i=> i.key), idx:ex.idx, endAt:ex.endAt, answers:ex.answers }));
+  } catch(e){ /* storage unavailable: the exam still works for this visit */ }
+  updateExamDot();
+}
+function clearExamProgress(){
+  try { localStorage.removeItem(EXAM_SAVE_KEY); } catch(e){ /* ignore */ }
+  updateExamDot();
+}
+function restoreExam(){
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(EXAM_SAVE_KEY) || 'null'); } catch(e){ d = null; }
+  if(!d || d.v !== 1 || !MODE_LABEL[d.mode] || !Array.isArray(d.keys) || !d.keys.length || !Array.isArray(d.answers) || d.answers.length !== d.keys.length) return;
+  const items = d.keys.map(k=> BANK_BY_KEY[k]);
+  if(items.some(x=> !x)){ clearExamProgress(); return; }
+  const answers = d.answers.map((a,i)=>{
+    const n = examQ(items[i]).choices.length;
+    return a && Array.isArray(a.order) && a.order.length === n ? { order:a.order.slice(), chosenIdx: (typeof a.chosenIdx === 'number' && a.chosenIdx >= 0 && a.chosenIdx < n) ? a.chosenIdx : null } : null;
+  });
+  const ex = state.exam;
+  ex.mode = d.mode; ex.active = true; ex.submitted = false;
+  ex.questions = items; ex.answers = answers;
+  ex.idx = Math.min(Math.max(0, d.idx|0), items.length-1);
+  ex.endAt = typeof d.endAt === 'number' ? d.endAt : Date.now() + EXAM_SECONDS*1000;
+  ex.secondsLeft = Math.max(0, Math.ceil((ex.endAt - Date.now())/1000));
+  showExamCard('play');
+  if(ex.mode === 'sim'){ ex.timerId = setInterval(tickExamTimer, 1000); tickExamTimer(); }
+  else { ex.timerId = null; $('exam-clock').textContent = 'Untimed'; $('exam-clock').classList.remove('low'); }
+  if(!ex.submitted) renderExamQuestion();
+}
+function quitExam(){
+  const ex = state.exam;
+  if(!confirm('Quit this exam? Your answers in it will be discarded. Questions you already answered in Study mode stay in your misses list if you got them wrong.')) return;
+  if(ex.timerId) clearInterval(ex.timerId);
+  ex.timerId = null; ex.active = false; ex.submitted = true;
+  clearExamProgress();
+  resetExamToIntro();
 }
 function tickExamTimer(){
   const ex = state.exam;
@@ -3211,6 +3392,7 @@ function renderExamQuestion(){
   } else explainEl.style.display = 'none';
 
   $('exam-prev').disabled = ex.idx === 0;
+  saveExamProgress();
   const isLast = ex.idx === total-1;
   $('exam-skip').style.display = isLast ? 'none' : '';
   $('exam-next').style.display = isLast ? '' : (existing.chosenIdx !== null ? '' : 'none');
@@ -3258,6 +3440,7 @@ function submitExam(){
   if(ex.submitted) return;
   ex.submitted = true;
   if(ex.timerId) clearInterval(ex.timerId);
+  clearExamProgress();
   const feedback = isFeedbackMode(ex.mode);
   const perCat = {};
   CATS.forEach(c=> perCat[c.key] = { correct:0, total:0 });
@@ -3330,7 +3513,7 @@ function submitExam(){
       <div style="margin-top:6px; font-size:.85rem;">${q.exp}</div>
     </div>`;
   }).join('');
-  window.scrollTo(0,0);
+  scrollToTop();
 }
 function downloadExamResults(){
   const ex = state.exam, perCat = ex.resultChart;
@@ -3362,6 +3545,7 @@ $('exam-start-sim').addEventListener('click', ()=> startExam('sim'));
 $('exam-prev').addEventListener('click', ()=> examStep(-1));
 $('exam-skip').addEventListener('click', ()=> examStep(1));
 $('exam-resume').addEventListener('click', ()=> showExamCard('play'));
+$('exam-quit').addEventListener('click', quitExam);
 $('exam-submit').addEventListener('click', submitExam);
 $('exam-retry').addEventListener('click', ()=>{
   const m = state.exam.mode;
@@ -3913,7 +4097,7 @@ function bindResultActions(container){
       if(go === 'fc') openCards(key, { cardId: key + '-' + idx });
       else if(go === 'quiz') openQuiz(key);
       else if(go === 'gk-fc') openCards('colaw', { source:'handout', deck:btn.dataset.deck, idx });
-      window.scrollTo(0,0);
+      scrollToTop();
     });
   });
 }
@@ -3953,6 +4137,8 @@ startFlashcards(state.fc.catKey);
 startGkFlashcards('defs');
 showExamCard('intro');
 renderExamIntro();
+$('exam-jump').open = window.innerWidth > 600;
+restoreExam();
 renderPath();
 </script>
 </body>
