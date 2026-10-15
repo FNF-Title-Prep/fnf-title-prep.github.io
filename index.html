@@ -709,6 +709,54 @@
     .tile-grid.compact{ display:flex; overflow-x:auto; gap:8px; padding-bottom:6px; -webkit-overflow-scrolling:touch; }
     .tile-grid.compact .tile{ flex:0 0 auto; white-space:nowrap; }
   }
+
+  /* ---- v5: pop-up guide and step-by-step walk-through ---- */
+  body.modal-open{ overflow:hidden; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(15,23,42,.62); display:flex; align-items:flex-start; justify-content:center; padding:16px; z-index:200; overflow-y:auto; }
+  .modal-backdrop[hidden]{ display:none; }
+  .modal{ position:relative; background:#fff; border-radius:20px; max-width:500px; width:100%; padding:30px 26px 24px; box-shadow:0 24px 70px rgba(0,0,0,.4); margin:auto; }
+  .modal:focus{ outline:none; }
+  .modal-x{ position:absolute; top:8px; right:10px; background:none; border:none; font-size:1.7rem; line-height:1; color:var(--muted); cursor:pointer; padding:6px 10px; border-radius:8px; }
+  .modal-x:hover{ background:#eef1f7; }
+  .modal-kicker{ font-size:.74rem; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:var(--gold); }
+  .modal h2{ margin:4px 0 12px; font-size:1.4rem; line-height:1.25; color:var(--navy); }
+  .modal-body p{ margin:0 0 10px; font-size:.95rem; color:#2c3550; }
+  .modal-body .flow{ margin:8px 0 12px; }
+  .modal-body .flow li{ font-size:.92rem; }
+  .modal-body .gm-note{ font-size:.84rem; color:var(--muted); margin-top:12px; }
+  .modal-actions{ display:flex; flex-direction:column; gap:8px; margin-top:18px; }
+  .modal-actions .btn{ width:100%; }
+  button.btn.huge{ padding:16px 22px; font-size:1.05rem; width:100%; }
+  .big-action{ display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .stages{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:4px 0 16px; scroll-margin-top:72px; }
+  .stage-chip{ display:flex; align-items:center; justify-content:center; gap:8px; padding:9px 8px; border:1px solid var(--border); border-radius:12px; background:#fff; color:var(--navy); font:inherit; font-weight:700; font-size:.84rem; cursor:pointer; }
+  .stage-chip:hover{ background:#f4f6fb; }
+  .stage-chip.on{ border-color:var(--gold); background:#fffaf0; box-shadow:0 0 0 2px rgba(184,134,59,.25); }
+  .stage-chip .sn{ width:22px; height:22px; border-radius:50%; background:#eef1f7; display:flex; align-items:center; justify-content:center; font-size:.76rem; flex:0 0 auto; }
+  .stage-chip.ok .sn{ background:var(--good); color:#fff; }
+  .stage-chip.on:not(.ok) .sn{ background:var(--gold); }
+  .stage-card{ background:#f7f9fd; border:1px solid var(--border); border-radius:14px; padding:14px 16px; }
+  .stage-card h3{ margin:0 0 6px; color:var(--navy); font-size:1.05rem; }
+  .stage-card p{ margin:0 0 8px; font-size:.92rem; color:#2c3550; }
+  .linklike{ background:none; border:none; color:var(--navy); text-decoration:underline; cursor:pointer; font:inherit; font-size:.84rem; margin-top:10px; padding:4px 8px; }
+  .linklike:hover{ color:var(--gold); }
+  .about-exam p{ font-size:.92rem; color:#2c3550; margin:0 0 10px; }
+  .tile .meta{ white-space:normal; }
+  @media (max-height:700px){
+    .modal{ padding:20px 16px 16px; }
+    .modal h2{ font-size:1.12rem; margin-bottom:8px; }
+    .modal-body p{ font-size:.86rem; margin-bottom:6px; }
+    .modal-body .flow{ margin:4px 0 8px; }
+    .modal-body .flow li{ font-size:.84rem; padding:6px 0 6px 38px; }
+    .modal-body .flow li::before{ top:6px; width:24px; height:24px; font-size:.74rem; }
+    .modal-body .gm-note{ font-size:.78rem; margin-top:6px; }
+    .modal-actions{ margin-top:12px; }
+    button.btn.huge{ padding:13px 18px; }
+  }
+  @media (max-width:600px){
+    .modal{ padding:26px 18px 20px; border-radius:18px; }
+    .stage-chip{ flex-direction:column; gap:4px; padding:8px 4px; font-size:.78rem; }
+  }
   .choice:disabled{ color:var(--text); opacity:1; cursor:default; }
   .choice.correct:disabled{ color:#0d5c34; }
   .choice.incorrect:disabled{ color:#8f2a20; }
@@ -742,12 +790,13 @@
     <div class="card hero-card">
       <div class="kicker">Step-by-step walk-through</div>
       <h2 class="section-title" id="path-h" tabindex="-1">Guided Path</h2>
-      <p class="section-sub">New to title insurance? Follow the steps in order and you'll cover everything on the exam: the big picture, a short lesson for each content area, then full mock exams. No experience needed. Your progress saves automatically on this device.</p>
+      <p class="section-sub">New to title insurance? Follow the steps in order: the big picture, a short lesson for each of the seven content areas, then full practice exams. No experience needed. Your progress saves automatically on this device.</p>
       <div class="exam-stats" id="path-stats"></div>
       <div id="path-progress"></div>
       <button class="btn gold big" id="path-cta">Start Step 1</button>
       <div class="hero-sub" id="path-cta-sub"></div>
       <div class="free-note">Rather study on your own? <b>Flashcards</b>, <b>Quizzes</b> and the <b>Mock Exam</b> are always open. No steps required.</div>
+      <button type="button" class="linklike" id="path-help">How this works</button>
     </div>
 
     <div class="card">
@@ -756,10 +805,13 @@
       <div id="path-steps"></div>
     </div>
 
-    <div class="card">
-      <h2 class="section-title">After you take the real exam</h2>
-      <p class="section-sub">Log your Pearson VUE score report on <b>My Progress</b>. The site will build a focus test around your weakest areas.</p>
-      <button class="btn ghost" id="path-to-progress">Go to My Progress</button>
+    <div class="card about-exam">
+      <h2 class="section-title">About the real exam</h2>
+      <p>The exam has 75 questions and a 75-minute limit. You need 70% to pass.</p>
+      <p>The questions come from a much bigger pool of hundreds, so every sitting is a little different. Some questions repeat from one sitting to the next and some are new, usually a mix of both.</p>
+      <p>The questions on this site are examples of what to expect, and many of them are likely to show up. But they are not a list of what's on the test. Learn the idea behind each answer, not just the answer.</p>
+      <p class="section-sub" style="margin-bottom:8px;">The seven content areas. Tap one to open its lesson.</p>
+      <div class="tile-grid" id="exam-map"></div>
     </div>
 
     <div class="card">
@@ -774,9 +826,9 @@
     </div>
 
     <div class="card">
-      <h2 class="section-title">What's on the exam</h2>
-      <p class="section-sub">Questions by content area. Tap an area to open its lesson.</p>
-      <div id="exam-map"></div>
+      <h2 class="section-title">After you take the real exam</h2>
+      <p class="section-sub">Log your Pearson VUE score report on <b>My Progress</b>. The site will build a focus test around your weakest areas.</p>
+      <button class="btn ghost" id="path-to-progress">Go to My Progress</button>
     </div>
   </section>
 
@@ -785,7 +837,7 @@
     <div class="back-banner" id="cards-banner" style="display:none;"></div>
     <div class="card">
       <h2 class="section-title" id="cards-h" tabindex="-1">Flashcards</h2>
-      <p class="section-sub" id="cards-sub">Pick a category and flip through its cards, in any order. Cards marked ★ are exam-style: they're built from the questions that mirror the real exam.</p>
+      <p class="section-sub" id="cards-sub">Pick a category and flip through its cards, in any order. Cards marked ★ are exam-style: examples of how the real exam asks questions. They're likely topics, but not the whole test.</p>
       <div class="tile-grid" id="cards-tiles" role="group" aria-label="Flashcard categories"></div>
     </div>
 
@@ -861,7 +913,7 @@
     <div id="quiz-pick">
       <div class="card">
         <h2 class="section-title" id="quiz-h" tabindex="-1">Quizzes</h2>
-        <p class="section-sub" id="quiz-sub">Pick a category, or mix them all, then choose a length. After every answer you'll see why it's right. Most questions are written in the exam's style.</p>
+        <p class="section-sub" id="quiz-sub">Pick a category, or mix them all, then choose a length. After every answer you'll see why it's right. Most questions are exam-style examples. The real exam draws from a much bigger pool, so learn the ideas, not just the answers.</p>
         <div class="tile-grid" id="quiz-tiles" role="group" aria-label="Quiz categories"></div>
       </div>
       <div class="card" id="quiz-setup-card">
@@ -907,7 +959,7 @@
     <div class="card" id="exam-intro-card">
       <div class="exam-hero">
         <h2 class="section-title" id="exam-h" tabindex="-1">Mock Exam</h2>
-        <p class="section-sub">A full-length practice exam in the same seven content areas, with Colorado law weighted heaviest. Most of each attempt is exam-style questions, and every attempt draws a different mix, so no two are the same.</p>
+        <p class="section-sub">A full-length practice exam across all seven content areas. Most questions are exam-style examples, and every attempt draws a different mix, so no two are the same. The real exam draws from hundreds of questions, so use this to practice, then keep learning the ideas behind the answers.</p>
         <div class="exam-stats">
           <div class="s"><div class="n" id="exam-qcount">75</div><div class="l">Questions</div></div>
           <div class="s"><div class="n" id="exam-minutes-stat">75</div><div class="l">Minutes</div></div>
@@ -1084,6 +1136,19 @@
 
 </main>
 
+<div class="modal-backdrop" id="guide" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+    <button type="button" class="modal-x" id="guide-x" aria-label="Close this pop-up">&times;</button>
+    <div class="modal-kicker" id="guide-kicker"></div>
+    <h2 id="guide-title"></h2>
+    <div class="modal-body" id="guide-body"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn gold huge" id="guide-primary"></button>
+      <button type="button" class="btn ghost" id="guide-secondary"></button>
+    </div>
+  </div>
+</div>
+
 <footer class="foot">
   For study purposes only. Not affiliated with Pearson VUE or the Colorado Division of Insurance. Study every content area — the pass/fail line is on your overall score, not any single area.
 </footer>
@@ -1095,7 +1160,8 @@
 const SITE_NAME = 'Colorado Title Insurance Exam Prep';
 const PASS_SCORE = 70;
 const EXAM_SECONDS = 75*60;
-/* Seats per content area in a full mock exam. */
+/* How the questions of one mock exam are spread across the areas. This is the site's own mix,
+   not an official breakdown of the real exam. */
 const EXAM_CAT_TARGET = {terms:10, policies:10, ownership:8, rights:8, legal:8, transfer:7, colaw:24};
 const EXAM_TOTAL = Object.values(EXAM_CAT_TARGET).reduce((a,b)=>a+b, 0);
 /* Highest share of any area's mock-exam seats that may come from the
@@ -1402,7 +1468,7 @@ const PRACTICE_QS = [
     q:"Which form can modify or change a title insurance policy?",
     choices:["Endorsement", "Quitclaim deed", "Codicil", "Appendix"], correct:0,
     explanation:"An endorsement modifies, adds to, restricts, or otherwise affects policy coverage or terms. A deed conveys an interest in real estate; a codicil changes a will.",
-    rule:"Endorsement is a core Title Insurance Terms & Concepts topic, and Colorado's rate regulations also expressly address endorsements.",
+    rule:"An endorsement is a form that changes or adds to a policy's coverage. Colorado's rate regulations also address endorsements.",
     tip:"Change an insurance policy = ENDORSEMENT.",
     similar:{ q:"A title insurer wishes to add additional coverage to an existing policy. What is normally used?", choices:["Codicil", "Endorsement", "Warranty deed", "Promissory note"], correct:1 }
   },
@@ -2076,7 +2142,7 @@ const AREA_INFO = {
     ]
   },
   colaw: {
-    tagline: 'The state rules for title companies and the people who work for them — the biggest part of the exam.',
+    tagline: 'The state rules for title companies and the people who work for them.',
     plain: 'This area covers the Colorado laws and Division of Insurance regulations that govern title insurance: how rates are filed, what title companies may and may not do, how money must be handled, and how licensing and enforcement work. It has the most questions on the exam, and it is full of specific numbers, so it rewards learning the exact rule.',
     ideas: [
       ['Rates must be filed', 'Title rates are filed with the Commissioner. A title entity cannot waive them, discount below them, or vary them outside the filed rates.'],
@@ -2087,7 +2153,7 @@ const AREA_INFO = {
       ['Licensing', 'Learn who needs a license and the rules for address changes, assumed names, and controlled business.']
     ],
     watch: [
-      'This area has the most seats on the exam, so each point here counts the most.',
+      'This area has the most material to learn here (the most flashcards and quiz questions), so give it extra time.',
       'Questions often use NOT or EXCEPT wording. Read the whole question before choosing.'
     ]
   }
@@ -2222,6 +2288,11 @@ const state = {
   testDate: '',
   reports: [],    // logged score reports
   introDone: false,        // Guided Path step 1 marked done
+  welcomed: false,         // the welcome pop-up has been shown
+  celebrated: false,       // the all-steps-done pop-up has been shown
+  lessonRead: {},          // area key -> true once its lesson is read
+  coached: {},             // step id -> true once its start pop-up was shown
+  pathStage: {},           // area key -> which part (lesson/cards/quiz) is showing; this visit only
   pathOpen: undefined,     // which Guided Path step is expanded
   fromPath: null           // {id} when Flashcards / Quizzes was opened from a Guided Path step
 };
@@ -2238,7 +2309,8 @@ function snapshot(){
   const gkfc = {};
   GK_DECKS.forEach(d=>{ const p = gkState.fc.progress[d.key]; gkfc[d.key] = { reviewed:[...p.reviewed], known:[...p.known] }; });
   return { v:2, fc, gk:{ fc:gkfc }, misses:state.misses, recent:state.recent,
-           testDate:state.testDate, reports:state.reports, intro:state.introDone };
+           testDate:state.testDate, reports:state.reports, intro:state.introDone,
+           path:{ welcomed:state.welcomed, celebrated:state.celebrated, lessonRead:state.lessonRead, coached:state.coached } };
 }
 function persist(){
   try { localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); }
@@ -2270,6 +2342,13 @@ function loadStore(){
   if(typeof d.testDate === 'string') state.testDate = d.testDate;
   if(Array.isArray(d.reports)) state.reports = d.reports.filter(r=> r && typeof r.overall==='number' && r.areas);
   if(d.intro === true) state.introDone = true;
+  if(d.path && typeof d.path === 'object'){
+    if(d.path.welcomed === true) state.welcomed = true;
+    if(d.path.celebrated === true) state.celebrated = true;
+    ['lessonRead','coached'].forEach(k=>{
+      if(d.path[k] && typeof d.path[k] === 'object') Object.keys(d.path[k]).forEach(id=>{ if(d.path[k][id] === true) state[k][id] = true; });
+    });
+  }
 }
 
 /* Every answer, in every mode, flows through here: it feeds the
@@ -2413,6 +2492,110 @@ const WORDS = [
   ['Underwriter', 'The insurance company that takes the risk and pays valid claims.'],
   ['Title plant', "A title company's own indexed copy of property records, used to search title quickly."]
 ];
+
+/* ---- Pop-up guide: a big dialog that says what to do next ---- */
+let guideActs = {}, guideReturnFocus = null;
+function setInert(on){
+  ['main','header.top','nav.tabs','a.skip-link'].forEach(sel=>{
+    const el = document.querySelector(sel);
+    if(!el) return;
+    if(on) el.setAttribute('inert',''); else el.removeAttribute('inert');
+  });
+}
+function showGuide(o){
+  guideActs = { primary:o.primary[1] || null, secondary:(o.secondary && o.secondary[1]) || null };
+  $('guide-kicker').textContent = o.kicker || '';
+  $('guide-title').textContent = o.title;
+  $('guide-body').innerHTML = o.html || '';
+  $('guide-primary').textContent = o.primary[0];
+  const sec = $('guide-secondary');
+  sec.style.display = o.secondary ? '' : 'none';
+  if(o.secondary) sec.textContent = o.secondary[0];
+  if($('guide').hidden) guideReturnFocus = document.activeElement;
+  $('guide').hidden = false;
+  document.body.classList.add('modal-open');
+  setInert(true);
+  $('guide').scrollTop = 0;
+  $('guide-primary').focus({preventScroll:true});
+}
+function closeGuide(){
+  if($('guide').hidden) return;
+  $('guide').hidden = true;
+  document.body.classList.remove('modal-open');
+  setInert(false);
+  if(guideReturnFocus && document.contains(guideReturnFocus)) guideReturnFocus.focus({preventScroll:true});
+  guideReturnFocus = null;
+}
+function runGuide(which){
+  const fn = guideActs[which];
+  closeGuide();
+  if(fn) fn();
+}
+$('guide-primary').addEventListener('click', ()=> runGuide('primary'));
+$('guide-secondary').addEventListener('click', ()=> runGuide('secondary'));
+$('guide-x').addEventListener('click', closeGuide);
+$('guide').addEventListener('click', e=>{ if(e.target === $('guide')) closeGuide(); });
+$('guide').addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ e.preventDefault(); closeGuide(); return; }
+  if(e.key !== 'Tab') return;
+  const f = [...$('guide').querySelectorAll('button')].filter(b=> b.offsetParent !== null);
+  if(!f.length) return;
+  const first = f[0], last = f[f.length-1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+const gmList = items => `<ol class="flow">${items.map(t=> `<li>${t}</li>`).join('')}</ol>`;
+
+function showWelcome(){
+  const st = pathStatus();
+  const total = Math.round(st.steps.reduce((sum, x)=> sum + stepMinutes(x), 0) / 60);
+  showGuide({
+    kicker:'Welcome',
+    title:"Let's get you ready for the Colorado title exam",
+    html:`<p>No experience needed. We'll walk you through it one step at a time:</p>` +
+      gmList([
+        '<b>The big picture.</b> A two-minute story of how a title transaction works.',
+        '<b>One short lesson for each of the 7 content areas.</b> Read it, study the flashcards, then take a quiz.',
+        '<b>Full practice exams.</b> First with answers after each question, then timed like the real thing.'
+      ]) +
+      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. Your progress saves on this device. Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
+    primary:['Get started →', ()=> beginStep('intro')],
+    secondary:["I'll look around first", null]
+  });
+}
+
+/* The first content-area step you open gets a pop-up laying out the routine (lesson, flashcards,
+   quiz). After that you know it, so the next steps open straight to the lesson. */
+function beginStep(id){
+  openPathStep(id);
+  const st = pathStatus();
+  const s = st.steps.find(x=> x.id === id);
+  if(!s || s.done || !s.area) return;
+  const known = Object.keys(state.coached).length > 0;
+  state.coached[id] = true;
+  persist();
+  if(known) return;
+  const info = AREA_INFO[s.area];
+  const cardMin = Math.max(5, Math.round(s.prog.deckLen*0.4/5)*5);
+  showGuide({
+    kicker:`Step ${s.n} of ${st.steps.length}`,
+    title:`Area ${areaNumber(s.area)}: ${AREA_SHORT[s.area]}`,
+    html:`<p>${escHtml(info.tagline)}</p>` +
+      gmList([
+        '<b>Read the short lesson.</b> About 3 minutes.',
+        `<b>Study the flashcards.</b> About ${cardMin} minutes. Basic cards first, then the ★ exam-style ones.`,
+        `<b>Take the quiz.</b> Score ${AREA_DONE.quiz}% or more to finish the step.`
+      ]) +
+      `<p class="gm-note">Plan on about ${stepMinutes(s)} minutes in all. You can stop any time. Your place is saved.</p>`,
+    primary:['Start the lesson →', ()=>{
+      state.pathStage[s.area] = undefined;
+      const el = document.querySelector('.pstep[data-step="'+id+'"] .stages');
+      if(el) el.scrollIntoView({block:'start'});
+    }],
+    secondary:['Not now', null]
+  });
+}
+
 function introBody(){
   return `<p>Every question on the exam fits somewhere in this story. Read it once, then move on to the content areas.</p>
     <ol class="flow">
@@ -2427,47 +2610,108 @@ function introBody(){
     </ol>
     <h3 style="font-size:1rem; color:var(--navy); margin:18px 0 0;">Words you'll hear a lot</h3>
     <div class="idea-list words">${WORDS.map(([t,d])=> `<div class="idea"><b>${escHtml(t)}</b><span>${escHtml(d)}</span></div>`).join('')}</div>
-    <p class="stat-line">The exam has ${EXAM_TOTAL} questions across ${CATS.length} content areas. Colorado law is the biggest area. The next ${CATS.length} steps teach one area at a time. Items marked <b>★ Exam-style</b> are written the way the real exam asks.</p>
-    <div class="step-actions">${state.introDone
-      ? '<span class="done-line" style="margin:0;">✓ Done</span><button class="btn ghost sm" data-act="intro-undo">Mark as not done</button>'
-      : '<button class="btn gold" data-act="intro-done">I\'ve read this. Mark done ✓</button>'}</div>`;
+    <p class="stat-line">The real exam has ${EXAM_TOTAL} questions across ${CATS.length} content areas, drawn from a much bigger pool, so every sitting is a little different. The next ${CATS.length} steps teach one area at a time. Items marked <b>★ Exam-style</b> are examples of how the real exam asks questions. They're likely topics, but not the whole test.</p>
+    <div class="big-action">${state.introDone
+      ? '<span class="done-line" style="margin:0;">✓ Done</span> <button class="btn ghost sm" data-act="intro-undo">Mark as not done</button>'
+      : '<button class="btn gold huge" data-act="intro-done">I\'ve read this. On to Area 1 →</button>'}</div>`;
+}
+
+/* ---- Content-area steps: Lesson, then Flashcards, then Quiz ---- */
+function areaStage(s){
+  if(s.done) return 'done';
+  const a = s.prog;
+  const lessonDone = !!state.lessonRead[s.area] || s.started;
+  if(!lessonDone) return 'lesson';
+  if(a.deckLen && a.reviewed / a.deckLen < AREA_DONE.cards) return 'cards';
+  return 'quiz';
 }
 function areaBody(s){
-  const key = s.area, info = AREA_INFO[key], n = EXAM_CAT_TARGET[key], a = s.prog;
-  const quizSub = a.best===null ? `Score ${AREA_DONE.quiz}%+ to finish this step` : `Your best: ${a.best}%`;
-  return `<div class="tagline">${escHtml(info.tagline)}</div>
-    <p class="overview-lead">${escHtml(info.plain)}</p>
-    <p class="stat-line"><b>On the exam:</b> about ${n} of ${EXAM_TOTAL} questions (${Math.round(100*n/EXAM_TOTAL)}%).</p>
-    <h3 style="font-size:1rem; color:var(--navy); margin:16px 0 0;">The key ideas</h3>
-    <div class="idea-list">${info.ideas.map(([t,d])=> `<div class="idea"><b>${escHtml(t)}</b><span>${escHtml(d)}</span></div>`).join('')}</div>
-    <div class="watch"><b>Watch out for</b><ul>${info.watch.map(w=> `<li>${escHtml(w)}</li>`).join('')}</ul></div>
-    <div class="step-actions">
-      <button class="btn gold stack" data-act="cards" data-key="${key}">A · Study the flashcards →<span class="sub">${a.reviewed} of ${a.deckLen} reviewed</span></button>
-      <button class="btn gold stack" data-act="quiz" data-key="${key}">B · Take the quiz →<span class="sub">${escHtml(quizSub)}</span></button>
-      ${key==='colaw' ? '<button class="btn ghost stack" data-act="handout" data-key="colaw">Class handout cards<span class="sub">Statutes, rates, curative table</span></button>' : ''}
-    </div>
-    ${s.done
-      ? `<div class="done-line">✓ Step complete. You can still open the cards and quiz any time.</div>`
-      : `<p class="stat-line">This step is complete when you've reviewed most of the flashcards (${Math.round(AREA_DONE.cards*100)}%) and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions. Start with the basic cards, then the ★ exam-style ones.</p>`}`;
+  const key = s.area, info = AREA_INFO[key], a = s.prog;
+  const lessonDone = !!state.lessonRead[key] || s.started;
+  const cardsOk = !!a.deckLen && a.reviewed / a.deckLen >= AREA_DONE.cards;
+  const quizOk = a.best !== null && a.best >= AREA_DONE.quiz;
+  const stage = state.pathStage[key] || areaStage(s);
+  const chip = (id, label, ok, n) =>
+    `<button type="button" class="stage-chip${stage===id?' on':''}${ok?' ok':''}" data-act="stage" data-key="${key}" data-stage="${id}" aria-pressed="${stage===id}"><span class="sn" aria-hidden="true">${ok ? '✓' : n}</span><span>${label}</span></button>`;
+  const chips = `<div class="stages" role="group" aria-label="Parts of this step">${chip('lesson','Lesson',lessonDone,1)}${chip('cards','Flashcards',cardsOk,2)}${chip('quiz','Quiz',quizOk,3)}</div>`;
+  let body;
+  if(stage === 'lesson'){
+    body = `<div class="tagline">${escHtml(info.tagline)}</div>
+      <p class="overview-lead">${escHtml(info.plain)}</p>
+      <h3 style="font-size:1rem; color:var(--navy); margin:16px 0 0;">The key ideas</h3>
+      <div class="idea-list">${info.ideas.map(([t,d])=> `<div class="idea"><b>${escHtml(t)}</b><span>${escHtml(d)}</span></div>`).join('')}</div>
+      <div class="watch"><b>Watch out for</b><ul>${info.watch.map(w=> `<li>${escHtml(w)}</li>`).join('')}</ul></div>
+      <div class="big-action"><button class="btn gold huge" data-act="lesson-done" data-key="${key}">${lessonDone ? 'Go on to the flashcards →' : "I've read the lesson. Next: the flashcards →"}</button></div>`;
+  } else if(stage === 'cards'){
+    body = `<div class="stage-card"><h3>Study the flashcards</h3>
+        <p>Flip each card, then tap <b>I know this</b> or <b>Review again</b>. The basic cards come first, then the ★ exam-style ones. Go through at least ${Math.round(AREA_DONE.cards*100)}% of the deck.</p>
+        <p class="stat-line"><b>${a.reviewed} of ${a.deckLen}</b> cards reviewed so far.</p></div>
+      <div class="big-action"><button class="btn gold huge" data-act="cards" data-key="${key}">${a.reviewed ? 'Continue the flashcards →' : 'Open the flashcards →'}</button>
+        ${key==='colaw' ? '<button class="btn ghost" data-act="handout" data-key="colaw">Class handout cards (statutes, rates, curative table)</button>' : ''}</div>`;
+  } else if(stage === 'quiz'){
+    const pool = quizPool(key, 'mixed').length;
+    body = `<div class="stage-card"><h3>Take the quiz</h3>
+        <p>10 questions, mostly exam-style, picked from ${pool} in this area. After every answer you'll see why it's right. Score ${AREA_DONE.quiz}% or more to finish this step.</p>
+        <p class="stat-line">${a.best === null ? "You haven't taken it yet." : `Your best so far: <b>${a.best}%</b>.`}</p></div>
+      <div class="big-action"><button class="btn gold huge" data-act="quiz" data-key="${key}">${a.best === null ? 'Start the quiz →' : 'Try the quiz again →'}</button>
+        <button class="btn ghost" data-act="cards" data-key="${key}">Review the flashcards first</button></div>`;
+  } else {
+    body = `<div class="done-line">✓ You've finished this step. The cards and quiz stay open any time.</div>
+      <div class="step-actions"><button class="btn ghost" data-act="cards" data-key="${key}">Open the flashcards</button><button class="btn ghost" data-act="quiz" data-key="${key}">Take the quiz again</button></div>`;
+  }
+  const rule = s.done ? '' : `<p class="stat-line">This step is complete when you've reviewed at least ${Math.round(AREA_DONE.cards*100)}% of the flashcards and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions.</p>`;
+  return chips + body + rule;
 }
 function nextStepButton(s, st){
   const nx = st.steps[s.n];
   if(!s.done || !nx) return '';
-  return `<div class="next-step-row"><button class="btn gold" data-act="open-step" data-id="${escHtml(nx.id)}">Next: ${nx.area ? 'Area '+areaNumber(nx.area)+': ' : ''}${escHtml(nx.title)} →</button></div>`;
+  return `<div class="next-step-row"><button class="btn gold huge" data-act="open-step" data-id="${escHtml(nx.id)}">Next: ${nx.area ? 'Area '+areaNumber(nx.area)+': ' : ''}${escHtml(nx.title)} →</button></div>`;
 }
 function mockBody(s, st){
   const inProg = state.exam.active && !state.exam.submitted;
-  const openLabel = inProg ? 'Resume your mock exam →' : 'Open the Mock Exam →';
-  if(s.id==='mock-study'){
+  const mode = s.id === 'mock-study' ? 'study' : 'sim';
+  const label = inProg ? 'Resume your mock exam →' : (mode === 'study' ? 'Start a Study-mode exam →' : 'Start a Timed exam →');
+  const btn = `<div class="big-action"><button class="btn gold huge" data-act="mock-start" data-mode="${mode}">${label}</button></div>`;
+  if(mode === 'study'){
     return `<p>Take one full-length practice exam with feedback after every question. This is where you get used to how the exam asks things.</p>
       <p class="stat-line">Plan on about 75 to 90 minutes. You can stop and pick it up later; your place is saved on this device. Every question you miss is saved to <b>My Progress</b> so you can drill it afterward.</p>
-      <div class="step-actions"><button class="btn gold" data-act="mock">${openLabel}</button></div>
+      ${btn}
       ${s.done ? `<div class="done-line">✓ Done. Your best Study-mode score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%.</div>` : ''}`;
   }
   return `<p>The real-exam run: ${EXAM_TOTAL} questions in ${EXAM_SECONDS/60} minutes, with no feedback until the end. Score ${PASS_SCORE}%+ on two timed runs in a row.</p>
-    <div class="step-actions"><button class="btn gold" data-act="mock">${openLabel}</button></div>
+    ${btn}
     ${s.done ? '<div class="done-line">✓ Done. Two passing timed runs in a row. You\'re ready to schedule your exam.</div>'
              : (st.sims.length ? `<p class="stat-line">Your last timed ${st.sims.length===1?'run':'runs'}: ${st.sims.slice(-2).map(a=>a.score+'%').join(', ')}.</p>` : '')}`;
+}
+/* Before a practice exam starts, a pop-up says what to expect. */
+function preExamGuide(mode){
+  if(mode === 'study'){
+    showGuide({
+      kicker:'Practice exam',
+      title:'Ready for your first practice exam?',
+      html:gmList([
+        `${EXAM_TOTAL} questions, no time limit.`,
+        "After every answer you'll see if you were right, and why.",
+        'Plan on 75 to 90 minutes. You can stop and come back later; your place is saved.',
+        'Every question you miss goes to <b>My Progress</b> so you can drill it afterward.'
+      ]) + '<p class="gm-note">Take your time and read each explanation. That is where the learning happens.</p>',
+      primary:['Start the exam →', ()=>{ showView('exam'); startExam('study'); }],
+      secondary:['Not yet', null]
+    });
+  } else {
+    showGuide({
+      kicker:'Timed exam',
+      title:'Ready for a timed exam?',
+      html:gmList([
+        `${EXAM_TOTAL} questions in ${EXAM_SECONDS/60} minutes. The clock keeps running if you leave.`,
+        'No answers until you submit, just like the real test.',
+        `Aim for ${PASS_SCORE}% or more, twice in a row.`,
+        'Only start when you have the full time and a quiet spot.'
+      ]),
+      primary:['Start the timed exam →', ()=>{ showView('exam'); startExam('sim'); }],
+      secondary:['Not yet', null]
+    });
+  }
 }
 function stepBody(s, st){
   if(s.id==='intro') return introBody();
@@ -2503,24 +2747,31 @@ function renderPath(){
   $('path-progress').innerHTML = `<div class="stat-line" style="margin:0;"><b>${st.doneCount} of ${st.steps.length}</b> steps complete · about ${Math.round(totalMin/60)} hours in total, best spread over several days</div>
     <div class="mini-bar" role="img" aria-label="${pct}% of the Guided Path complete" style="margin:6px auto 16px;"><i style="width:${pct}%"></i></div>`;
   const n = st.next, started = st.doneCount > 0 || st.areas.some(a=> a.status!=='new');
-  let label;
-  if(!n) label = 'You finished the path. See My Progress →';
-  else if(n.id==='intro') label = 'Start Step 1: How title insurance works →';
-  else label = `${started ? 'Continue' : 'Start'} Step ${n.n}: ${n.area ? AREA_SHORT[n.area] : n.title} →`;
-  $('path-cta').textContent = label;
-  $('path-cta-sub').textContent = n ? 'Opens your next step below. Nothing is locked, so you can open any step.' : 'Every step is complete.';
+  $('path-cta').textContent = !n ? 'You finished the path. See My Progress →' : (started ? 'Continue where you left off →' : 'Get started →');
+  $('path-cta-sub').textContent = n ? `${started ? 'Next' : 'First'}: Step ${n.n}, ${n.area ? 'Area '+areaNumber(n.area)+': '+AREA_SHORT[n.area] : n.title}` : 'Every step is complete.';
 
-  const max = Math.max(...Object.values(EXAM_CAT_TARGET));
-  $('exam-map').innerHTML = CATS.map(c=>{
-    const q = EXAM_CAT_TARGET[c.key];
-    return `<button class="area-bar" data-area="${c.key}">
-      <span>${areaNumber(c.key)}. ${escHtml(AREA_SHORT[c.key])}</span>
-      <span class="track"><span class="fill" style="width:${Math.round(100*q/max)}%; display:block;"></span></span>
-      <span class="qs">${q} Qs · ${Math.round(100*q/EXAM_TOTAL)}%</span>
-    </button>`;
-  }).join('');
+  $('exam-map').innerHTML = CATS.map(c=>
+    `<button type="button" class="tile" data-area="${c.key}">
+      <span class="t-top"><span class="num" aria-hidden="true">${areaNumber(c.key)}</span><span class="t-name">${escHtml(AREA_SHORT[c.key])}</span></span>
+      <span class="meta">${escHtml(AREA_INFO[c.key].tagline)}</span>
+    </button>`).join('');
   $('test-date').value = state.testDate || '';
   renderPlan();
+  maybeCelebrate(st);
+}
+/* Once, when every step is done. */
+function maybeCelebrate(st){
+  if(st.next || state.celebrated) return;
+  state.celebrated = true;
+  persist();
+  showGuide({
+    kicker:'All steps complete',
+    title:"You've finished the Guided Path",
+    html:`<p>You've worked through every content area and passed two timed practice exams in a row. That's a strong sign you're ready.</p>
+      <p class="gm-note">Before the real exam: keep taking timed practice exams, drill your misses on My Progress, and skim the Quick Reference the day before. Remember the real exam draws from a big pool of questions, so know the ideas, not just these answers.</p>`,
+    primary:['Plan my test date →', ()=>{ $('test-date').scrollIntoView({block:'center'}); $('test-date').focus({preventScroll:true}); }],
+    secondary:['See my progress', ()=> showView('progress')]
+  });
 }
 function openPathStep(id){
   state.pathOpen = id;
@@ -2534,8 +2785,9 @@ function openPathStep(id){
 }
 $('path-cta').addEventListener('click', ()=>{
   const n = pathStatus().next;
-  if(n) openPathStep(n.id); else showView('progress');
+  if(n) beginStep(n.id); else showView('progress');
 });
+$('path-help').addEventListener('click', showWelcome);
 $('path-to-progress').addEventListener('click', ()=> showView('progress'));
 $('path-steps').addEventListener('click', e=>{
   const t = e.target.closest('button[data-toggle]');
@@ -2550,19 +2802,34 @@ $('path-steps').addEventListener('click', e=>{
   const b = e.target.closest('button[data-act]');
   if(!b) return;
   const act = b.dataset.act, key = b.dataset.key;
-  if(act==='cards') openCards(key, { fromPath:true });
+  if(act==='stage'){
+    state.pathStage[key] = b.dataset.stage;
+    renderPathSteps();
+    const again = document.querySelector('.pstep[data-step="area:'+key+'"] .stage-chip[data-stage="'+b.dataset.stage+'"]');
+    if(again) again.focus({preventScroll:true});
+  }
+  else if(act==='lesson-done'){
+    state.lessonRead[key] = true;
+    state.pathStage[key] = undefined;
+    persist();
+    const s = pathStatus().steps.find(x=> x.id === 'area:'+key);
+    if(areaStage(s) === 'quiz') openQuiz(key, { fromPath:true, autostart:true });
+    else openCards(key, { fromPath:true });
+  }
+  else if(act==='cards') openCards(key, { fromPath:true });
   else if(act==='handout') openCards('colaw', { fromPath:true, source:'handout' });
-  else if(act==='quiz') openQuiz(key, { fromPath:true });
-  else if(act==='mock') showView('exam');
-  else if(act==='open-step') openPathStep(b.dataset.id);
+  else if(act==='quiz') openQuiz(key, { fromPath:true, autostart:true });
+  else if(act==='mock-start'){
+    if(state.exam.active && !state.exam.submitted) showView('exam');
+    else preExamGuide(b.dataset.mode);
+  }
+  else if(act==='open-step') beginStep(b.dataset.id);
   else if(act==='intro-done' || act==='intro-undo'){
     state.introDone = act==='intro-done';
     persist();
     const n = pathStatus().next;
-    state.pathOpen = act==='intro-done' && n ? n.id : 'intro';
-    renderPath();
-    const el = document.querySelector('.pstep[data-step="'+state.pathOpen+'"]');
-    if(el) el.scrollIntoView({block:'start'});
+    if(act==='intro-done' && n) beginStep(n.id);
+    else { state.pathOpen = 'intro'; renderPath(); }
   }
 });
 $('exam-map').addEventListener('click', e=>{
@@ -2570,13 +2837,14 @@ $('exam-map').addEventListener('click', e=>{
   if(b) openPathStep('area:'+b.dataset.area);
 });
 
-/* Back to the step you came from; if that step is finished now, open the next one. */
+/* Back to the step you came from; if that step is finished now, go on to the next one. */
 function returnToPath(){
   const f = state.fromPath;
   if(!f){ showView('path'); return; }
   const st = pathStatus();
   const s = st.steps.find(x=> x.id === f.id);
-  openPathStep(s && s.done && st.next ? st.next.id : f.id);
+  if(s && s.done && st.next) beginStep(st.next.id);
+  else openPathStep(f.id);
 }
 /* The banner shown on Flashcards / Quizzes when you arrived from a Guided Path step. */
 function renderBackBanner(el){
@@ -2600,6 +2868,8 @@ function parseLocalDate(s){
 }
 const dayAdd = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
 const fmtDay = d => d.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+/* How much there is to study in an area: its flashcards plus its quiz questions. */
+const areaMaterial = k => deckFor(k, 'all').length + quizPool(k, 'mixed').length;
 let planTargets = [];
 function renderPlan(){
   const out = $('plan-out');
@@ -2614,7 +2884,7 @@ function renderPlan(){
   const btn = (label, fn) => { planTargets.push(fn); return `<button class="btn ghost sm" data-plan="${planTargets.length-1}">${label}</button>`; };
   if(D <= 2){
     out.innerHTML = `<p class="stat-line"><b>${plural(D,'day')}</b> until your test.</p>
-      <p>With this little time, focus on what pays off most: the quiz for <b>Colorado Laws &amp; Regulations</b> (the biggest area), then your misses. Rest before the test.</p>
+      <p>With this little time, focus on what pays off most: the quiz for <b>Colorado Laws &amp; Regulations</b> (the area with the most to learn), then your misses. Rest before the test.</p>
       <div class="next-actions">${btn('Open the Colorado Laws quiz', ()=> openQuiz('colaw'))} ${btn('Quick Reference', ()=> showView('ref'))}</div>`;
     return;
   }
@@ -2624,22 +2894,22 @@ function renderPlan(){
   let L = N - P - M;
   if(L < 1){ L = 1; P = Math.max(1, N - L - M); }
   const keys = CATS.map(c=> c.key);
-  const total = keys.reduce((s,k)=> s + EXAM_CAT_TARGET[k], 0);
+  const total = keys.reduce((s,k)=> s + areaMaterial(k), 0);
   const rows = [];
   /* With enough learning days every area gets its own day(s) and the extra days go
-     to the heaviest areas first. With fewer days, areas share days. */
+     to the areas with the most material first. With fewer days, areas share days. */
   let spans;
   if(L >= keys.length){
     const days = keys.map(()=> 1);
     let extra = L - keys.length;
-    const order = keys.map((k,i)=> i).sort((a,b)=> EXAM_CAT_TARGET[keys[b]] - EXAM_CAT_TARGET[keys[a]]);
+    const order = keys.map((k,i)=> i).sort((a,b)=> areaMaterial(keys[b]) - areaMaterial(keys[a]));
     for(let i=0; extra>0; i=(i+1)%order.length){ days[order[i]]++; extra--; }
     let at = 0;
     spans = days.map(d=>{ const st = at; at += d; return { s:st, e:at-1 }; });
   } else {
     let cum = 0, prev = 0;
     spans = keys.map(k=>{
-      cum += EXAM_CAT_TARGET[k];
+      cum += areaMaterial(k);
       const end = Math.round(cum/total*L);
       const st = Math.min(prev, L-1);
       const en = Math.max(end-1, st);
@@ -2822,6 +3092,30 @@ function markCard(knowIt){
   /* Finishing the last card of the pass shows what to do next instead of looping silently. */
   if(wasLast || !state.fc.deck.length) state.fc.done = true;
   renderFlashcard();
+  if(state.fc.done && state.fromPath && state.fromPath.id === 'area:'+state.fc.catKey) deckDoneGuide();
+}
+function reviewMissedCards(){
+  state.fc.hideKnown = true;
+  rebuildDeck();
+  state.fc.idx = 0;
+  syncDeckControls();
+  renderFlashcard();
+}
+/* From the Guided Path, a pop-up points to the quiz as soon as the deck is finished. */
+function deckDoneGuide(){
+  const key = state.fc.catKey;
+  const full = deckFor(key, state.fc.deckMode);
+  const p = state.progress[key];
+  const known = full.filter(c=> p.known.has(c.id)).length;
+  const left = full.length - known;
+  showGuide({
+    kicker:'Flashcards done',
+    title: left ? 'You went through the whole deck' : 'You know every card',
+    html:`<p><b>${known} of ${full.length}</b> cards marked "I know this".</p>
+      <p><b>Next: take the quiz.</b> 10 questions, and you need ${AREA_DONE.quiz}% or more to finish this step.${left ? ` You can review the ${left} you marked "Review again" first.` : ''}</p>`,
+    primary:['Start the quiz →', ()=> openQuiz(key, { fromPath:true, autostart:true })],
+    secondary: left ? [`Review the ${left} first`, reviewMissedCards] : ['Not yet', null]
+  });
 }
 function renderDeckDone(){
   const key = state.fc.catKey;
@@ -2842,8 +3136,8 @@ $('fc-done').addEventListener('click', e=>{
   if(!b) return;
   const key = state.fc.catKey, act = b.dataset.done;
   const fromHere = !!state.fromPath && state.fromPath.id === 'area:'+key;
-  if(act === 'missed'){ state.fc.hideKnown = true; rebuildDeck(); state.fc.idx = 0; syncDeckControls(); renderFlashcard(); }
-  else if(act === 'quiz') openQuiz(key, { fromPath:fromHere });
+  if(act === 'missed') reviewMissedCards();
+  else if(act === 'quiz') openQuiz(key, { fromPath:fromHere, autostart:fromHere });
   else if(act === 'path') returnToPath();
   else { rebuildDeck(); state.fc.idx = 0; renderFlashcard(); }
 });
@@ -3045,7 +3339,8 @@ function openQuiz(key, opts){
   selectQuiz(key);
   state.qz.phase = 'pick';
   showView('quiz');
-  $('quiz-setup-card').scrollIntoView({block:'nearest'});
+  if(opts.autostart) startQuiz();           // from the Guided Path: straight into 10 questions
+  else $('quiz-setup-card').scrollIntoView({block:'nearest'});
 }
 $('quiz-tiles').addEventListener('click', e=>{
   const b = e.target.closest('button[data-area]');
@@ -3204,6 +3499,44 @@ function finishQuiz(){
     </div>`;
   }).join('');
   scrollToTop();
+  if(fromHere) quizResultGuide(q.sel, right, total, pct, missed);
+}
+/* From the Guided Path, a pop-up says what the score means and what to do next. */
+function quizResultGuide(key, right, total, pct, missed){
+  const a = areaProgress(key);
+  const st = pathStatus();
+  const me = st.steps.find(x=> x.id === 'area:'+key);
+  const nx = me && st.steps[me.n];
+  const score = `<p>You scored <b>${right} of ${total} (${pct}%)</b>.</p>`;
+  if(a.status === 'done'){
+    showGuide({
+      kicker:'Step complete',
+      title:`You finished Area ${areaNumber(key)}: ${AREA_SHORT[key]}`,
+      html: score + (nx ? `<p>Next up: <b>${nx.area ? 'Area '+areaNumber(nx.area)+': ' : ''}${escHtml(nx.title)}</b>.</p>` : ''),
+      primary:[nx ? 'Continue →' : 'See my progress →', ()=> nx ? returnToPath() : showView('progress')],
+      secondary:['Look at my answers', null]
+    });
+  } else if(pct >= AREA_DONE.quiz){
+    showGuide({
+      kicker:'Quiz passed',
+      title:'One more thing to finish this step',
+      html: score + `<p>Review the flashcards for this area. You've gone through <b>${a.reviewed} of ${a.deckLen}</b> so far, and the step is complete at ${Math.round(AREA_DONE.cards*100)}%.</p>`,
+      primary:['Open the flashcards →', ()=> openCards(key, { fromPath:true })],
+      secondary:['Not now', null]
+    });
+  } else {
+    showGuide({
+      kicker:'Keep going',
+      title:"Not quite there yet",
+      html: score + `<p>You need ${AREA_DONE.quiz}% or more. Here's what to do:</p>` + gmList([
+        missed ? `Read what you missed. It's listed first on the next screen.` : 'Look over your answers.',
+        'Review the flashcards for this area.',
+        'Take the quiz again. It picks a fresh set of questions.'
+      ]),
+      primary:['See what I missed', ()=>{ $('quiz-review-title').scrollIntoView({block:'start'}); }],
+      secondary:['Try the quiz again now', ()=> startQuiz()]
+    });
+  }
 }
 $('quiz-start').addEventListener('click', startQuiz);
 $('quiz-next').addEventListener('click', ()=>{
@@ -3486,7 +3819,7 @@ function submitExam(){
   const oPct = oTotal ? Math.round(100*oCorrect/oTotal) : 0;
   $('exam-result-split').innerHTML = pTotal && oTotal
     ? `<b>Exam-style questions:</b> ${pCorrect} of ${pTotal} (${pPct}%) &nbsp;·&nbsp; <b>Other questions:</b> ${oCorrect} of ${oTotal} (${oPct}%)` +
-      (tracked ? `<div style="font-size:.8rem; color:var(--muted); margin-top:4px; max-width:620px; margin-left:auto; margin-right:auto;">Each attempt draws a different mix of exam-style questions, so repeat attempts keep testing new ground. For "am I ready?", look at both numbers and aim for ${PASS_SCORE}+ on each.</div>` : '')
+      (tracked ? `<div style="font-size:.8rem; color:var(--muted); margin-top:4px; max-width:620px; margin-left:auto; margin-right:auto;">Each attempt draws a different mix. The exam-style questions are examples of what to expect, not the whole test. For "am I ready?", look at both numbers and aim for ${PASS_SCORE}+ on each.</div>` : '')
     : '';
   $('exam-result-chart').innerHTML = CATS.map(c=>{
     const d = perCat[c.key];
@@ -4140,6 +4473,13 @@ renderExamIntro();
 $('exam-jump').open = window.innerWidth > 600;
 restoreExam();
 renderPath();
+/* First visit: a big welcome pop-up. People who already have progress skip it. */
+if(!state.welcomed){
+  const hasProgress = state.introDone || examHistory.length > 0 || CATS.some(c=> areaProgress(c.key).status !== 'new');
+  state.welcomed = true;
+  persist();
+  if(!hasProgress && $('guide').hidden) showWelcome();
+}
 </script>
 </body>
 </html>
