@@ -84,16 +84,17 @@
     -webkit-backdrop-filter:saturate(1.4) blur(10px); backdrop-filter:saturate(1.4) blur(10px);
     border-bottom:1px solid var(--line);
   }
-  .topbar-in{ max-width:1040px; margin:0 auto; padding:0 var(--s5); display:flex; align-items:center; gap:var(--s5); min-height:var(--nav-h); }
+  .topbar-in{ max-width:1180px; margin:0 auto; padding:0 var(--s5); display:flex; align-items:center; gap:var(--s4); min-height:var(--nav-h); }
+  header.top{ order:1; min-width:0; }
   .brand{ display:flex; align-items:center; gap:10px; flex:0 0 auto; text-decoration:none; color:var(--navy); }
   .brand-mark{ width:26px; height:26px; border-radius:7px; background:var(--navy); display:grid; place-items:center; }
   .brand-mark svg{ width:14px; height:14px; }
   header.top h1{ margin:0; font-size:.98rem; font-weight:600; letter-spacing:-.005em; color:var(--navy); white-space:nowrap; }
-  nav.tabs{ position:relative; display:flex; align-items:center; gap:2px; margin-left:auto; min-width:0; }
+  nav.tabs{ position:relative; order:2; display:flex; align-items:center; gap:2px; margin-left:auto; min-width:0; }
   nav.tabs button{
     position:relative; display:inline-flex; align-items:center; gap:6px;
     background:none; border:0; color:var(--ink-2);
-    font-size:.9rem; font-weight:500; padding:18px 12px 16px;
+    font-size:.9rem; font-weight:500; padding:18px 10px 16px;
     cursor:pointer; white-space:nowrap;
     transition:color var(--t-fast) var(--ease);
   }
@@ -105,6 +106,8 @@
   nav.tabs button.tab-path.active{ background:var(--navy); color:#fff; }
   nav.tabs button.has-dot::after{ content:''; width:7px; height:7px; border-radius:50%; background:var(--accent-fill); }
   nav.tabs button:focus-visible{ outline-offset:-4px; }
+  nav.tabs button.tab-search{ padding-left:9px; padding-right:9px; }
+  nav.tabs button.tab-search .i{ width:18px; height:18px; }
 
   main{ max-width:800px; margin:0 auto; padding:var(--s6) var(--s4) var(--s7); }
   .view{ display:none; }
@@ -481,6 +484,120 @@
   .modal-actions{ display:flex; flex-direction:column; gap:var(--s2); margin-top:var(--s5); }
   .modal-actions .btn{ width:100%; }
 
+
+  /* ---- Account button and menu (top bar) ---- */
+  .acct{ position:relative; order:3; flex:0 0 auto; margin-left:var(--s3); }
+  .acct[hidden]{ display:none; }
+  .acct-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    min-height:36px; padding:5px 14px;
+    background:var(--surface); color:var(--navy);
+    border:1px solid var(--line-strong); border-radius:999px;
+    font-size:.84rem; font-weight:600; letter-spacing:-.005em; cursor:pointer;
+    transition:background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+  }
+  .acct-btn:hover{ background:var(--navy-tint); border-color:var(--navy); }
+  .acct-btn[aria-expanded="true"]{ background:var(--navy-tint); border-color:var(--navy); }
+  .acct-btn.signed{ padding:3px 10px 3px 3px; }
+  .acct-btn .avatar{ display:none; }
+  .acct-btn.signed .avatar{ display:grid; }
+  .acct-btn.signed .acct-name{ display:none; }
+  @media (min-width:1400px){ .acct-btn.signed .acct-name{ display:inline; } }
+  .avatar{ display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--navy); color:#fff; font-size:.68rem; font-weight:600; letter-spacing:.02em; }
+  .avatar.lg{ width:40px; height:40px; font-size:.84rem; }
+  .avatar.guest{ background:var(--navy-tint); color:var(--navy); }
+  .avatar.guest .i{ width:20px; height:20px; }
+  .acct-btn .chev{ width:14px; height:14px; color:var(--muted); display:none; }
+  .acct-btn.signed .chev{ display:block; }
+  .acct-menu{
+    position:absolute; right:0; top:calc(100% + 8px); z-index:60;
+    min-width:224px; padding:6px;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow-float); animation:modalIn var(--t-fast) var(--ease);
+  }
+  .acct-menu[hidden]{ display:none; }
+  .acct-who{ display:flex; flex-direction:column; gap:1px; padding:8px 10px 10px; margin-bottom:4px; border-bottom:1px solid var(--line); font-size:.84rem; color:var(--muted); }
+  .acct-who b{ color:var(--ink); font-size:.9rem; }
+  .acct-who span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acct-menu button[role="menuitem"]{
+    display:flex; width:100%; align-items:center; gap:10px;
+    padding:9px 10px; background:none; border:0; border-radius:8px;
+    color:var(--ink); font-size:.9rem; font-weight:500; text-align:left; cursor:pointer;
+  }
+  .acct-menu button[role="menuitem"]:hover, .acct-menu button[role="menuitem"]:focus-visible{ background:var(--navy-tint); color:var(--navy); outline:none; }
+  .acct-menu button[role="menuitem"] .i{ width:16px; height:16px; color:var(--muted); }
+  .acct-menu button[role="menuitem"][hidden]{ display:none; }
+
+  /* ---- Sign-in pop-up ---- */
+  .auth-modal{ max-width:440px; }
+  .auth-lead{ margin:0 0 var(--s4); text-align:center; font-size:.95rem; color:var(--ink-2); }
+  .auth-seg{ display:flex; width:100%; margin:0 0 var(--s4); }
+  .auth-seg[hidden]{ display:none; }
+  .auth-seg button{ flex:1; }
+  .field{ margin:0 0 var(--s3); }
+  .field[hidden]{ display:none; }
+  .field label{ display:block; margin-bottom:6px; font-size:.8rem; font-weight:600; color:var(--ink-2); }
+  input[type=text], input[type=email], input[type=password]{
+    width:100%; min-height:44px; padding:10px 12px;
+    border:1px solid var(--line-strong); border-radius:10px;
+    background:var(--surface); color:var(--ink); font-size:16px;
+    transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+  }
+  .field-hint{ margin-top:5px; font-size:.78rem; color:var(--muted); }
+  .field-hint[hidden]{ display:none; }
+  .pw{ position:relative; }
+  .pw input{ padding-right:68px; }
+  .pw-toggle{ position:absolute; right:6px; top:50%; transform:translateY(-50%); padding:6px 8px; background:none; border:0; border-radius:6px; color:var(--navy); font-size:.8rem; font-weight:600; cursor:pointer; }
+  .pw-toggle:hover{ background:var(--navy-tint); }
+  .auth-error, .auth-ok{ margin:var(--s3) 0 0; padding:10px 12px; border-radius:var(--r-sm); font-size:.88rem; line-height:1.45; }
+  .auth-error{ background:var(--bad-bg); border:1px solid var(--bad-line); color:#8a2b20; }
+  .auth-ok{ background:var(--good-bg); border:1px solid var(--good-line); color:#135c37; }
+  .auth-error[hidden], .auth-ok[hidden]{ display:none; }
+  .auth-links{ display:flex; justify-content:center; gap:var(--s3); margin-top:var(--s3); }
+  button.link{ padding:6px 8px; background:none; border:0; border-radius:6px; color:var(--navy); font-size:.86rem; font-weight:500; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+  button.link:hover{ background:var(--navy-tint); }
+  button.link[hidden]{ display:none; }
+  .modal-actions .btn[hidden]{ display:none; }
+  button.btn[disabled]{ opacity:.65; cursor:default; transform:none; }
+  button.btn.busy::before{ content:''; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ---- Toast ---- */
+  .toast{
+    position:fixed; left:50%; bottom:28px; z-index:300;
+    max-width:min(92vw, 520px); padding:11px 18px;
+    background:var(--ink); color:#fff; border-radius:999px;
+    font-size:.88rem; font-weight:500; line-height:1.4; text-align:center;
+    box-shadow:var(--shadow-float);
+    transform:translate(-50%, 12px); opacity:0;
+    transition:opacity var(--t) var(--ease), transform var(--t) var(--ease);
+  }
+  .toast.show{ transform:translate(-50%, 0); opacity:1; }
+  .toast[hidden]{ display:none; }
+
+  /* ---- My Progress: account strip and at-a-glance stats ---- */
+  #acct-card[hidden]{ display:none; }
+  .acct-strip{ display:flex; align-items:center; gap:var(--s4); }
+  .acct-strip .acct-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .acct-strip .acct-text b{ font-size:1rem; color:var(--ink); }
+  .acct-strip .acct-text span{ font-size:.86rem; color:var(--muted); }
+  .acct-strip .acct-actions{ display:flex; gap:var(--s2); flex:0 0 auto; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s3); }
+  .stat{ padding:var(--s4) var(--s2); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r); text-align:center; }
+  .stat b{ display:block; font-size:1.6rem; font-weight:600; letter-spacing:-.03em; line-height:1.1; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .stat span{ display:block; margin-top:var(--s1); font-size:.66rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .stat small{ display:block; margin-top:3px; font-size:.76rem; color:var(--muted); }
+
+  /* ---- Manager view ---- */
+  main.wide{ max-width:1040px; }
+  .admin-tools{ display:flex; justify-content:center; align-items:center; gap:var(--s2); margin:0 0 var(--s3); }
+  table.admin-table th, table.admin-table td{ padding:12px 8px; }
+  .admin-tools input[type=search]{ flex:1; max-width:360px; }
+  table.admin-table td .sub{ display:block; font-size:.76rem; font-weight:400; color:var(--muted); }
+  table.admin-table td .mini-bar{ max-width:120px; margin:5px 0 0; height:4px; }
+  table.admin-table th:nth-child(n+2), table.admin-table td:nth-child(n+2){ white-space:nowrap; }
+  table.admin-table td{ font-variant-numeric:tabular-nums; }
+
   footer.foot{ padding:var(--s6) var(--s4) var(--s2); text-align:center; font-size:.76rem; line-height:1.5; color:var(--muted); }
   .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 
@@ -490,11 +607,17 @@
   }
 
   /* ---- Phones and small screens ---- */
-  @media (max-width:900px){
+
+  /* ---- Tablets and narrow laptops: brand row + nav row ---- */
+  @media (max-width:1180px){
     .topbar-in{ flex-wrap:wrap; gap:0; padding:0 var(--s3); }
-    .brand{ padding:12px 4px 4px; max-height:60px; overflow:hidden; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease); }
+    header.top{ flex:1 1 50%; min-width:0; order:1; }   /* shares the first row with the account button; grows to the full row without it */
+    .brand{ min-width:0; padding:12px 4px 4px; max-height:60px; overflow:hidden; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease); }
+    header.top h1{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    .acct{ order:2; margin-left:auto; padding:8px 4px 0; max-height:60px; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease), visibility var(--t) var(--ease); }
     .topbar.scrolled .brand{ max-height:0; padding-top:0; padding-bottom:0; opacity:0; }
-    nav.tabs{ flex:1 0 100%; margin-left:0; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .topbar.scrolled .acct{ max-height:0; padding-top:0; padding-bottom:0; opacity:0; visibility:hidden; }
+    nav.tabs{ order:3; flex:1 0 100%; margin-left:0; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
     nav.tabs::-webkit-scrollbar{ display:none; }
     nav.tabs button{ flex:0 0 auto; padding:12px 10px 12px; }
     nav.tabs button.tab-path{ margin:0 var(--s2) 4px 2px; }
@@ -502,8 +625,17 @@
     nav.tabs .nav-ink{ display:none; }
     nav.tabs button.active:not(.tab-path)::before{ content:''; position:absolute; left:10px; right:10px; bottom:0; height:2px; background:var(--navy); border-radius:2px 2px 0 0; }
   }
+  @media (max-width:900px){
+  }
   @media (max-width:600px){
     main{ padding:var(--s4) var(--s3) var(--s6); }
+    .stat-grid{ grid-template-columns:1fr 1fr; gap:var(--s2); }
+    .stat b{ font-size:1.4rem; }
+    .acct-strip{ flex-wrap:wrap; }
+    .acct-strip .acct-actions{ flex-basis:100%; }
+    .acct-strip .acct-actions .btn{ flex:1; }
+    .admin-tools{ flex-wrap:wrap; }
+    .admin-tools input[type=search]{ max-width:none; flex-basis:100%; }
     .card{ padding:var(--s4); margin-bottom:var(--s3); border-radius:var(--r); }
     .page-head h2{ font-size:1.5rem; }
     .hero-card h2.section-title{ font-size:2rem; }
@@ -547,7 +679,15 @@
     .area-row .row-actions{ grid-column:1 / -1; }
     .area-row .row-actions .btn{ flex:1; }
   }
+  @media (max-width:420px){
+    header.top h1{ font-size:.88rem; }
+    .acct-btn{ min-height:34px; padding:4px 12px; font-size:.8rem; }
+    .acct-btn.signed{ padding:2px 8px 2px 2px; }
+  }
   @media (max-width:380px){
+    header.top h1{ font-size:.8rem; }
+    .brand{ gap:8px; }
+    .brand-mark{ width:22px; height:22px; }
     nav.tabs button{ padding:12px 8px; font-size:.84rem; }
     .chart-item{ grid-template-columns:92px 1fr 40px; font-size:.72rem; }
     table.progress-table{ font-size:.78rem; }
@@ -585,12 +725,23 @@
   <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c3 .2 5 2.3 5 5.3"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M15 8l4 4-4 4M9 12h10"/></symbol>
 </svg>
 
 <div class="topbar"><div class="topbar-in">
 <header class="top">
   <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16v4.5h-5.75V20h-4.5V8.5H4z"/></svg></span><h1 id="site-title">Colorado Title Insurance Exam Prep</h1></div>
 </header>
+<div class="acct" id="acct" hidden>
+  <button type="button" class="acct-btn" id="acct-btn" aria-haspopup="menu" aria-expanded="false"><span class="avatar" id="acct-avatar" aria-hidden="true"></span><span class="acct-name" id="acct-name">Sign in</span><svg class="i chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+  <div class="acct-menu" id="acct-menu" role="menu" aria-label="Account" hidden>
+    <div class="acct-who" id="acct-who"></div>
+    <button type="button" role="menuitem" data-act="progress"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>My Progress</button>
+    <button type="button" role="menuitem" data-act="admin" id="acct-admin" hidden><svg class="i" aria-hidden="true"><use href="#i-users"/></svg>Manager view</button>
+    <button type="button" role="menuitem" data-act="signout"><svg class="i" aria-hidden="true"><use href="#i-out"/></svg>Sign out</button>
+  </div>
+</div>
 <nav class="tabs" aria-label="Main sections">
   <button class="tab-btn tab-path active" data-view="path" aria-current="page">Guided Path</button>
   <span class="tab-sep" aria-hidden="true"></span>
@@ -600,7 +751,7 @@
   <span class="tab-sep" aria-hidden="true"></span>
   <button class="tab-btn" data-view="progress">My Progress</button>
   <button class="tab-btn" data-view="ref">Quick Reference</button>
-  <button class="tab-btn tab-search" data-view="search" aria-label="Search all study material"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>Search</button>
+  <button class="tab-btn tab-search" data-view="search" aria-label="Search all study material" title="Search"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></button>
   <span class="nav-ink" aria-hidden="true"></span>
 </nav>
 </div></div>
@@ -612,7 +763,7 @@
     <div class="card hero-card">
       <div class="kicker">Guided Path</div>
       <h2 class="section-title" id="path-h" tabindex="-1">Pass the Colorado title exam.</h2>
-      <p class="section-sub">A guided course for new hires: the big picture, seven short lessons with flashcards and quizzes, then full practice exams. No experience needed. Your progress saves on this device.</p>
+      <p class="section-sub">A guided course for new hires: the big picture, seven short lessons with flashcards and quizzes, then full practice exams. No experience needed. <span id="hero-save">Your progress saves on this device.</span></p>
       <div class="big-action" style="margin-top:20px;"><button class="btn big" id="path-cta">Get started</button></div>
       <div class="hero-sub" id="path-cta-sub"></div>
       <div id="path-progress"></div>
@@ -882,6 +1033,11 @@
       <h2 class="section-title" id="progress-h" tabindex="-1">My Progress</h2>
       <p class="section-sub">Where you stand, what is left, and what to review next.</p>
     </header>
+    <div class="card" id="acct-card" hidden></div>
+    <div class="card">
+      <h2 class="section-title">At a glance</h2>
+      <div class="stat-grid" id="stat-grid"></div>
+    </div>
     <div class="card">
       <div id="ready-card"></div>
     </div>
@@ -914,7 +1070,7 @@
     </div>
 
     <div class="card">
-      <h2 class="section-title">Mock exam history <span style="font-weight:400; color:var(--muted); font-size:.78rem;">(saved on this computer)</span></h2>
+      <h2 class="section-title">Mock exam history <span style="font-weight:400; color:var(--muted); font-size:.78rem;" id="history-where">(saved on this computer)</span></h2>
       <div id="exam-history-summary" style="font-size:.82rem; color:var(--muted); margin:6px 0 10px;"></div>
       <div class="table-scroll"><table class="progress-table">
         <thead><tr><th>#</th><th>Date</th><th>Mode</th><th>Score</th><th>Result</th></tr></thead>
@@ -973,6 +1129,26 @@
     </div>
   </section>
 
+  <!-- ============ MANAGER VIEW (accounts with the admin role) ============ -->
+  <section id="view-admin" class="view" aria-labelledby="admin-h">
+    <header class="page-head">
+      <h2 class="section-title" id="admin-h" tabindex="-1">Manager view</h2>
+      <p class="section-sub">Everyone with an account, and how far along they are. Updates each time someone studies.</p>
+    </header>
+    <div class="card">
+      <div class="admin-tools">
+        <input type="search" id="admin-filter" placeholder="Find by name or email" aria-label="Find by name or email" autocomplete="off">
+        <button class="btn ghost sm" id="admin-refresh"><svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>Refresh</button>
+      </div>
+      <p class="stat-line" id="admin-summary" style="text-align:center; margin:0 0 var(--s3);"></p>
+      <div class="table-scroll"><table class="progress-table admin-table">
+        <thead><tr><th>Name</th><th>Guided Path</th><th>Cards known</th><th>Best mock</th><th>Answered</th><th>Accuracy</th><th>Last active</th></tr></thead>
+        <tbody id="admin-body"></tbody>
+      </table></div>
+      <p class="note"><b>Guided Path</b> is steps finished out of 10. <b>Cards known</b> is the share of all flashcards marked "I know this". <b>Accuracy</b> covers every quiz and mock exam answer. <b>Last active</b> is the last time progress was saved.</p>
+    </div>
+  </section>
+
 </main>
 
 <div class="modal-backdrop" id="guide" hidden>
@@ -987,6 +1163,35 @@
     </div>
   </div>
 </div>
+
+<div class="modal-backdrop" id="auth" hidden>
+  <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <button type="button" class="modal-x" id="auth-x" aria-label="Close this pop-up"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    <div class="modal-kicker" id="auth-kicker">Your account</div>
+    <h2 id="auth-title">Sign in</h2>
+    <p class="auth-lead" id="auth-lead"></p>
+    <div class="seg auth-seg" id="auth-seg" role="tablist" aria-label="Sign in or create an account">
+      <button type="button" role="tab" data-mode="signin" class="active" aria-selected="true">Sign in</button>
+      <button type="button" role="tab" data-mode="signup" aria-selected="false">Create account</button>
+    </div>
+    <form id="auth-form" novalidate>
+      <div class="field" id="auth-f-name"><label for="auth-name">Your name</label><input id="auth-name" type="text" autocomplete="name" maxlength="60" placeholder="First and last name"></div>
+      <div class="field" id="auth-f-email"><label for="auth-email">Work email</label><input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120"></div>
+      <div class="field" id="auth-f-pass"><label for="auth-pass">Password</label><div class="pw"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="200"><button type="button" class="pw-toggle" id="auth-pw-toggle" aria-pressed="false" aria-label="Show password">Show</button></div><div class="field-hint" id="auth-pass-hint">At least 8 characters.</div></div>
+      <div class="auth-error" id="auth-error" role="alert" hidden></div>
+      <div class="auth-ok" id="auth-ok" role="status" hidden></div>
+      <div class="modal-actions">
+        <button type="submit" class="btn huge" id="auth-submit">Sign in</button>
+        <button type="button" class="btn ghost" id="auth-alt" hidden>Continue without an account</button>
+      </div>
+      <div class="auth-links">
+        <button type="button" class="link" id="auth-forgot">Forgot your password?</button>
+        <button type="button" class="link" id="auth-back" hidden>Back to sign in</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <footer class="foot">
   For study purposes only. Not affiliated with Pearson VUE or the Colorado Division of Insurance. Study every content area — the pass/fail line is on your overall score, not any single area.
@@ -1009,6 +1214,10 @@ const PRACTICE_SEAT_SHARE = 0.70;
 /* An area counts as "complete" once this much of its deck is reviewed AND
    the area check has been scored at or above the bar. */
 const AREA_DONE = { cards:0.8, quiz:80 };
+/* Accounts (optional). Fill in the Supabase project URL and anon key to turn on sign-in and
+   progress that follows a person to any device (see docs/ACCOUNTS.md). Leave both empty and
+   the site saves to this device only. */
+const CLOUD = { url:'', anonKey:'' };
 /* Targeted practice sizes. */
 const MISSES_SESSION_MAX = 30;
 const FOCUS_TEST_SIZE = 40;
@@ -2156,6 +2365,8 @@ const state = {
   recent: {},     // area key -> last answers, 1 = right, 0 = wrong
   testDate: '',
   reports: [],    // logged score reports
+  stats: { answered:0, correct:0 },   // every quiz and mock exam answer, all time
+  days: {},                // 'YYYY-MM-DD' -> true for each day with study activity
   introDone: false,        // Guided Path step 1 marked done
   welcomed: false,         // the welcome pop-up has been shown
   celebrated: false,       // the all-steps-done pop-up has been shown
@@ -2179,15 +2390,19 @@ function snapshot(){
   GK_DECKS.forEach(d=>{ const p = gkState.fc.progress[d.key]; gkfc[d.key] = { reviewed:[...p.reviewed], known:[...p.known] }; });
   return { v:2, fc, gk:{ fc:gkfc }, misses:state.misses, recent:state.recent,
            testDate:state.testDate, reports:state.reports, intro:state.introDone,
-           path:{ welcomed:state.welcomed, celebrated:state.celebrated, lessonRead:state.lessonRead, coached:state.coached } };
+           path:{ welcomed:state.welcomed, celebrated:state.celebrated, lessonRead:state.lessonRead, coached:state.coached },
+           stats:{ answered:state.stats.answered|0, correct:state.stats.correct|0 }, days:state.days };
 }
 function persist(){
   try { localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); }
   catch(e){ /* storage unavailable — everything still works for this visit */ }
+  cloudSchedule();
 }
-function loadStore(){
-  let d = null;
-  try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch(e){ d = null; }
+/* Loads a saved state into memory: from this device, or (when given) a merged copy from the account. */
+function loadStore(d){
+  if(d === undefined){
+    try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch(e){ d = null; }
+  }
   if(!d || d.v !== 2) return;
   CATS.forEach(c=>{
     const p = d.fc && d.fc[c.key];
@@ -2210,6 +2425,8 @@ function loadStore(){
   }
   if(typeof d.testDate === 'string') state.testDate = d.testDate;
   if(Array.isArray(d.reports)) state.reports = d.reports.filter(r=> r && typeof r.overall==='number' && r.areas);
+  if(d.stats && typeof d.stats === 'object'){ state.stats.answered = Math.max(state.stats.answered|0, d.stats.answered|0); state.stats.correct = Math.max(state.stats.correct|0, d.stats.correct|0); }
+  if(d.days && typeof d.days === 'object') Object.keys(d.days).forEach(k=>{ if(d.days[k] === true && /^\d{4}-\d{2}-\d{2}$/.test(k)) state.days[k] = true; });
   if(d.intro === true) state.introDone = true;
   if(d.path && typeof d.path === 'object'){
     if(d.path.welcomed === true) state.welcomed = true;
@@ -2233,6 +2450,9 @@ function recordResult(item, correct){
   const r = state.recent[item.catKey] = state.recent[item.catKey] || [];
   r.push(correct ? 1 : 0);
   if(r.length > RECENT_WINDOW) r.shift();
+  state.stats.answered = (state.stats.answered|0) + 1;
+  if(correct) state.stats.correct = (state.stats.correct|0) + 1;
+  touchDay();
   persist();
 }
 const missCount = () => Object.keys(state.misses).length;
@@ -2245,7 +2465,7 @@ function recentAccuracy(key){
 /* =========================================================
    TABS / ROUTER
    ========================================================= */
-const VIEW_IDS = ['path','cards','quiz','exam','progress','ref','search'];
+const VIEW_IDS = ['path','cards','quiz','exam','progress','ref','search','admin'];
 function showView(view){
   if(!VIEW_IDS.includes(view)) view = 'path';
   document.querySelectorAll('.tab-btn').forEach(b=>{
@@ -2263,8 +2483,10 @@ function showView(view){
   else if(view==='exam') renderExamIntro();
   else if(view==='progress') renderProgress();
   else if(view==='ref') renderRef();
+  else if(view==='admin'){ renderAdmin(); if(!document.querySelector('#view-admin.active')) return; }
+  $('main').classList.toggle('wide', view === 'admin');   // the team table needs the room
   scrollToTop();
-  const TAB_NAMES = { cards:'Flashcards', quiz:'Quizzes', exam:'Mock Exam', progress:'My Progress', ref:'Quick Reference', search:'Search' };
+  const TAB_NAMES = { cards:'Flashcards', quiz:'Quizzes', exam:'Mock Exam', progress:'My Progress', ref:'Quick Reference', search:'Search', admin:'Manager view' };
   document.title = view === 'path' ? SITE_NAME : TAB_NAMES[view] + ' · ' + SITE_NAME;
   moveInk();
   const h = document.querySelector('#view-'+view+' h2[tabindex="-1"]');
@@ -2379,7 +2601,7 @@ const WORDS = [
 /* ---- Pop-up guide: a big dialog that says what to do next ---- */
 let guideActs = {}, guideReturnFocus = null;
 function setInert(on){
-  ['main','header.top','nav.tabs','a.skip-link'].forEach(sel=>{
+  ['main','header.top','nav.tabs','a.skip-link','.acct'].forEach(sel=>{
     const el = document.querySelector(sel);
     if(!el) return;
     if(on) el.setAttribute('inert',''); else el.removeAttribute('inert');
@@ -2441,8 +2663,8 @@ function showWelcome(){
         '<b>One short lesson for each of the 7 content areas.</b> Read it, study the flashcards, then take a quiz.',
         '<b>Full practice exams.</b> First with answers after each question, then timed like the real thing.'
       ]) +
-      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. Your progress saves on this device. Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
-    primary:['Get started →', ()=> beginStep('intro')],
+      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.on ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.'} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
+    primary:['Get started →', ()=> (Cloud.on && !Cloud.session) ? openAuth('signup', { then: ()=> beginStep('intro') }) : beginStep('intro')],
     secondary:["I'll look around first", null]
   });
 }
@@ -2693,6 +2915,7 @@ $('path-steps').addEventListener('click', e=>{
   else if(act==='lesson-done'){
     state.lessonRead[key] = true;
     state.pathStage[key] = undefined;
+    touchDay();
     persist();
     const s = pathStatus().steps.find(x=> x.id === 'area:'+key);
     if(areaStage(s) === 'quiz') openQuiz(key, { fromPath:true, autostart:true });
@@ -2962,6 +3185,7 @@ function markCard(knowIt){
   const wasLast = state.fc.idx === state.fc.deck.length - 1;
   p.reviewed.add(card.id);
   if(knowIt) p.known.add(card.id); else p.known.delete(card.id);
+  touchDay();
   persist();
   renderCardTiles();
   if(state.fc.hideKnown && knowIt){
@@ -3839,6 +4063,7 @@ function loadHistory(){
 function saveHistory(){
   try { localStorage.setItem(HISTORY_KEY, JSON.stringify(examHistory)); }
   catch(e){ /* storage unavailable — history still works for this session */ }
+  cloudSchedule();
 }
 function recordAttempt(attempt){
   examHistory.push(attempt);
@@ -4104,6 +4329,8 @@ function deleteReport(id){
 $('rp-save').addEventListener('click', saveReport);
 
 function renderProgress(){
+  renderAccountCard();
+  renderStats();
   renderReady();
   renderAreaTable();
   renderMissesCard();
@@ -4404,7 +4631,7 @@ document.addEventListener('keydown', e=>{
   if(e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target, tag = t && t.tagName;
   if(tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || (t && t.isContentEditable)) return;
-  if(!$('guide').hidden) return;
+  if(document.body.classList.contains('modal-open')) return;
   const k = e.key, lk = k.toLowerCase();
   const onButton = tag === 'BUTTON' || tag === 'SUMMARY' || tag === 'A';
   if(onButton && (k === 'Enter' || k === ' ')) return;        // the button itself handles it
@@ -4440,6 +4667,654 @@ document.addEventListener('keydown', e=>{
   }
 });
 
+
+/* =========================================================
+   ACCOUNTS — optional sign-in so progress and stats follow a
+   person to any device. Talks to a Supabase project (Auth +
+   REST) with plain fetch; no SDK. With CLOUD left empty, none
+   of this is visible and the site saves to this device only.
+   ========================================================= */
+const AUTH_KEY = 'coTitleAuth_v1';
+const Cloud = {
+  on: !!(CLOUD.url && CLOUD.anonKey),
+  session: null,      // {access_token, refresh_token, expires_at (ms), user:{id,email}}
+  profile: null,      // {id, email, display_name, role}
+  dirty:false, timer:null, pushing:false, syncedAt:0, pulledAt:0, failed:false, quiet:false
+};
+const cloudUrl = path => CLOUD.url.replace(/\/+$/, '') + path;
+const siteUrl = () => location.origin + location.pathname;
+
+function cloudStoredSession(){
+  try {
+    const s = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    return s && s.access_token && s.refresh_token && s.user && s.user.id ? s : null;
+  } catch(e){ return null; }
+}
+function cloudStore(s){
+  Cloud.session = s;
+  try { if(s) localStorage.setItem(AUTH_KEY, JSON.stringify(s)); else localStorage.removeItem(AUTH_KEY); }
+  catch(e){ /* storage unavailable — stays signed in for this visit only */ }
+}
+function sessionFrom(j){
+  return {
+    access_token: j.access_token, refresh_token: j.refresh_token || '',
+    expires_at: j.expires_at ? j.expires_at * 1000 : Date.now() + (j.expires_in || 3600) * 1000,
+    user: { id: j.user.id, email: j.user.email || '' }
+  };
+}
+function cloudError(message, status, json){ const e = new Error(message); e.status = status; e.json = json; return e; }
+
+/* Plain-English messages for the server's error codes. */
+function cloudMessage(j, status){
+  const raw = j ? String(j.msg || j.error_description || j.message || j.error || j.hint || '') : '';
+  const code = j ? String(j.error_code || j.code || '') : '';
+  const has = re => re.test(raw) || re.test(code);
+  if(status === 0) return "Can't reach the server. Check your connection and try again.";
+  if(status === 429 || has(/rate limit|over_.*rate_limit|too many/i)) return 'Too many attempts. Wait a few minutes and try again.';
+  if(has(/invalid login credentials|invalid_credentials/i)) return "That email and password don't match.";
+  if(has(/already registered|user_already_exists|email_exists/i)) return 'There is already an account with that email. Sign in instead.';
+  if(has(/weak_password|password should/i)) return 'Use a longer password: at least 8 characters.';
+  if(has(/email_not_confirmed|not confirmed/i)) return 'Confirm your email first: open the link we sent you, then sign in.';
+  if(has(/signup_disabled|signups not allowed/i)) return 'New sign-ups are turned off right now. Ask your manager.';
+  if(has(/signup_not_allowed|database error saving new user/i)) return 'Only company email addresses can create an account.';
+  if(has(/invalid refresh token|refresh_token_not_found|session_expired|session_not_found/i)) return 'Your session expired. Sign in again.';
+  if(has(/same_password|different from the old/i)) return 'Pick a password you have not used here before.';
+  if(has(/validation_failed|unable to validate email|invalid format|is invalid/i)) return 'Enter a valid email address.';
+  if(status >= 500) return 'The account service had a problem. Try again in a moment.';
+  return raw ? raw.replace(/[.\s]+$/, '').slice(0, 160) + '.' : 'Something went wrong. Try again.';
+}
+
+async function cloudFetch(path, o){
+  o = o || {};
+  const headers = Object.assign({ 'apikey': CLOUD.anonKey, 'Content-Type': 'application/json' }, o.headers || {});
+  if(o.auth){
+    const tok = await cloudToken();
+    if(!tok) throw cloudError('Your session expired. Sign in again.', 401, null);
+    headers['Authorization'] = 'Bearer ' + tok;
+  } else if(!headers['Authorization']){
+    headers['Authorization'] = 'Bearer ' + CLOUD.anonKey;
+  }
+  let res;
+  try {
+    res = await fetch(cloudUrl(path), { method: o.method || 'GET', headers, body: o.body === undefined ? undefined : JSON.stringify(o.body), keepalive: !!o.keepalive, cache: 'no-store' });
+  } catch(e){ throw cloudError(cloudMessage(null, 0), 0, null); }
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch(e){ json = null; }
+  if(!res.ok) throw cloudError(cloudMessage(json, res.status), res.status, json);
+  return json;
+}
+
+/* ---- Session tokens ---- */
+let refreshing = null;
+async function cloudToken(){
+  const s = Cloud.session;
+  if(!s) return null;
+  if(s.expires_at - Date.now() > 60000) return s.access_token;
+  if(!refreshing) refreshing = cloudRefresh().finally(()=>{ refreshing = null; });
+  return refreshing;
+}
+async function cloudRefresh(){
+  const tried = Cloud.session && Cloud.session.refresh_token;
+  if(!tried) return Cloud.session ? Cloud.session.access_token : null;
+  const attempt = async token => { const j = await cloudFetch('/auth/v1/token?grant_type=refresh_token', { method:'POST', body:{ refresh_token: token } }); cloudStore(sessionFrom(j)); return Cloud.session.access_token; };
+  try { return await attempt(tried); }
+  catch(e){
+    if(e.status === 0 || e.status >= 500) return Cloud.session ? Cloud.session.access_token : null;   // offline: keep going, retry later
+    const other = cloudStoredSession();                              // another tab may have refreshed first
+    if(other && other.refresh_token !== tried){
+      Cloud.session = other;
+      if(other.expires_at - Date.now() > 60000) return other.access_token;
+      try { return await attempt(other.refresh_token); } catch(e2){ /* fall through */ }
+    }
+    cloudDropSession('Your session expired. Sign in again to keep saving your progress.');
+    return null;
+  }
+}
+function cloudDropSession(msg){
+  clearTimeout(Cloud.timer); Cloud.timer = null; Cloud.dirty = false;
+  cloudStore(null); Cloud.profile = null;
+  renderAccountUI();
+  if(msg) toast(msg, 6000);
+}
+
+/* ---- Sign up / sign in / reset ---- */
+async function cloudSignUp(name, email, password){
+  const allowed = await cloudFetch('/rest/v1/rpc/signup_allowed', { method:'POST', body:{ email } });
+  if(allowed !== true) throw cloudError('Only company email addresses can create an account. Use your work email, or ask your manager to add you.', 403, null);
+  const j = await cloudFetch('/auth/v1/signup', { method:'POST', body:{ email, password, data:{ display_name: name } } });
+  if(j && j.access_token && j.user){ cloudStore(sessionFrom(j)); await cloudLoadProfile(); return 'ok'; }
+  const u = j && (j.user || (j.id ? j : null));
+  if(u && Array.isArray(u.identities) && u.identities.length === 0) throw cloudError('There is already an account with that email. Sign in instead.', 422, null);
+  return 'confirm';   // the project asks people to confirm their email first
+}
+async function cloudSignIn(email, password){
+  const j = await cloudFetch('/auth/v1/token?grant_type=password', { method:'POST', body:{ email, password } });
+  cloudStore(sessionFrom(j));
+  await cloudLoadProfile();
+}
+async function cloudForgot(email){
+  await cloudFetch('/auth/v1/recover?redirect_to=' + encodeURIComponent(siteUrl()), { method:'POST', body:{ email } });
+}
+async function cloudSetPassword(password){
+  await cloudFetch('/auth/v1/user', { method:'PUT', auth:true, body:{ password } });
+}
+async function cloudLoadProfile(){
+  const s = Cloud.session;
+  const fallback = { id: s.user.id, email: s.user.email, display_name: '', role: 'learner' };
+  try {
+    const rows = await cloudFetch('/rest/v1/profiles?select=id,email,display_name,role&id=eq.' + encodeURIComponent(s.user.id), { auth:true });
+    Cloud.profile = rows && rows[0] ? rows[0] : fallback;
+  } catch(e){ Cloud.profile = Cloud.profile || fallback; }
+}
+
+/* After a successful sign-in: if this device already has guest progress, ask whether it
+   belongs to this person before mixing it into the account. */
+function localHasProgress(){
+  return state.introDone || examHistory.length > 0 || state.reports.length > 0 || (state.stats.answered|0) > 0 ||
+    CATS.some(c=> areaProgress(c.key).status !== 'new');
+}
+async function cloudFinishSignIn(opts){
+  opts = opts || {};
+  const go = async ()=>{ await cloudSyncDown(true); if(opts.then) opts.then(); };
+  if(!opts.ask || !localHasProgress()) return go();
+  showGuide({
+    kicker:'One quick question',
+    title:'Keep the progress on this device?',
+    html:'<p>This device already has some study progress on it. If it is yours, add it to your account. If someone else was using this computer, start from your account only.</p>',
+    primary:['Yes, add it to my account', ()=> go()],
+    secondary:['No, use my account only', ()=>{ clearLocalProgress(); location.reload(); }]
+  });
+}
+
+/* ---- Saving and loading progress ---- */
+function cloudSnapshot(){ const d = snapshot(); d.history = examHistory; return d; }
+function statsSummary(){
+  const st = pathStatus();
+  const cardsTotal = st.areas.reduce((s,a)=> s + a.deckLen, 0), cardsKnown = st.areas.reduce((s,a)=> s + a.known, 0);
+  const best = examHistory.length ? Math.max(...examHistory.map(a=> a.score)) : null;
+  const last = examHistory.length ? examHistory[examHistory.length-1] : null;
+  return {
+    steps_done: st.doneCount, steps_total: st.steps.length, areas_done: st.areasDone, ready: !st.next,
+    cards_known: cardsKnown, cards_total: cardsTotal,
+    exams: examHistory.length, timed_exams: st.sims.length, best_exam: best, last_exam: last ? last.score : null, last_exam_at: last ? last.date : null,
+    answered: state.stats.answered|0, correct: state.stats.correct|0, days: Object.keys(state.days).length,
+    test_date: state.testDate || null
+  };
+}
+/* Union of two saved states: nothing a person did on either device is lost. */
+function mergeSnapshots(a, b){
+  const A = a || {}, B = b || {};
+  const uni = (x, y) => [...new Set([...(Array.isArray(x) ? x : []), ...(Array.isArray(y) ? y : [])])];
+  const out = { v:2, fc:{}, gk:{ fc:{} }, misses:{}, recent:{}, testDate:'', reports:[], intro:false,
+                path:{ welcomed:false, celebrated:false, lessonRead:{}, coached:{} }, stats:{ answered:0, correct:0 }, days:{}, history:[] };
+  CATS.forEach(c=>{
+    const p = (A.fc || {})[c.key] || {}, q = (B.fc || {})[c.key] || {};
+    const bests = [p.best, q.best].filter(v=> typeof v === 'number');
+    out.fc[c.key] = { reviewed: uni(p.reviewed, q.reviewed), known: uni(p.known, q.known), best: bests.length ? Math.max(...bests) : null };
+  });
+  GK_DECKS.forEach(d=>{
+    const p = ((A.gk || {}).fc || {})[d.key] || {}, q = ((B.gk || {}).fc || {})[d.key] || {};
+    out.gk.fc[d.key] = { reviewed: uni(p.reviewed, q.reviewed), known: uni(p.known, q.known) };
+  });
+  [A.misses, B.misses].forEach(m=>{
+    if(!m || typeof m !== 'object') return;
+    Object.keys(m).forEach(k=>{ const v = m[k]; if(!v || typeof v !== 'object') return; const cur = out.misses[k]; if(!cur || (v.t || 0) > (cur.t || 0)) out.misses[k] = v; });
+  });
+  CATS.forEach(c=>{ const p = (A.recent || {})[c.key] || [], q = (B.recent || {})[c.key] || []; out.recent[c.key] = (p.length >= q.length ? p : q).slice(-RECENT_WINDOW); });
+  out.testDate = (typeof A.testDate === 'string' && A.testDate) ? A.testDate : (typeof B.testDate === 'string' ? B.testDate : '');
+  const byId = (xs, ys, keyOf) => { const seen = new Set(), r = []; [...(Array.isArray(xs) ? xs : []), ...(Array.isArray(ys) ? ys : [])].forEach(it=>{ if(!it) return; const k = keyOf(it); if(seen.has(k)) return; seen.add(k); r.push(it); }); return r; };
+  out.reports = byId(A.reports, B.reports, r=> r.id || (r.date + ':' + r.overall)).sort((x, y)=> (parseInt(y.id, 36) || 0) - (parseInt(x.id, 36) || 0));
+  out.history = byId(A.history, B.history, h=> h.id || (h.date + ':' + h.score)).filter(h=> typeof h.score === 'number' && h.date).sort((x, y)=> new Date(x.date) - new Date(y.date));
+  out.intro = A.intro === true || B.intro === true;
+  const pa = A.path || {}, pb = B.path || {};
+  out.path.welcomed = pa.welcomed === true || pb.welcomed === true;
+  out.path.celebrated = pa.celebrated === true || pb.celebrated === true;
+  ['lessonRead','coached'].forEach(k=>{ [pa[k], pb[k]].forEach(o=>{ if(o && typeof o === 'object') Object.keys(o).forEach(id=>{ if(o[id] === true) out.path[k][id] = true; }); }); });
+  const sa = A.stats || {}, sb = B.stats || {};
+  const top = (sa.answered|0) >= (sb.answered|0) ? sa : sb;
+  out.stats = { answered: top.answered|0, correct: top.correct|0 };
+  [A.days, B.days].forEach(d=>{ if(d && typeof d === 'object') Object.keys(d).forEach(k=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(k)) out.days[k] = true; }); });
+  return out;
+}
+function applySnapshot(d){
+  Cloud.quiet = true;
+  try {
+    loadStore(d);
+    if(Array.isArray(d.history)) examHistory = d.history.filter(a=> a && typeof a.score === 'number' && a.date);
+    persist(); saveHistory();
+  } finally { Cloud.quiet = false; }
+  if($('view-path').classList.contains('active')) renderPath();
+  if($('view-progress').classList.contains('active')) renderProgress();
+  if($('view-cards').classList.contains('active')) renderCardTiles();
+}
+async function cloudSyncDown(pushAfter){
+  if(!Cloud.session) return;
+  let row = null;
+  try {
+    const rows = await cloudFetch('/rest/v1/progress?select=data,updated_at&user_id=eq.' + encodeURIComponent(Cloud.session.user.id), { auth:true });
+    row = rows && rows[0] ? rows[0] : null;
+  } catch(e){
+    if(Cloud.session){ Cloud.failed = true; renderAccountUI(); }
+    return;
+  }
+  Cloud.pulledAt = Date.now();
+  const merged = mergeSnapshots(cloudSnapshot(), row && row.data && typeof row.data === 'object' ? row.data : null);
+  applySnapshot(merged);
+  if(pushAfter || !row) await cloudPush();
+  else { Cloud.syncedAt = Date.now(); Cloud.failed = false; renderAccountUI(); }
+}
+async function cloudPush(opts){
+  opts = opts || {};
+  if(!Cloud.on || !Cloud.session) return false;
+  clearTimeout(Cloud.timer); Cloud.timer = null;
+  if(Cloud.pushing && !opts.keepalive){ Cloud.dirty = true; return false; }   // the push in flight will be followed by another
+  Cloud.pushing = true; Cloud.dirty = false;
+  const body = { user_id: Cloud.session.user.id, data: cloudSnapshot(), stats: statsSummary() };
+  try {
+    await cloudFetch('/rest/v1/progress', { method:'POST', auth:true, body, keepalive: !!opts.keepalive, headers:{ 'Prefer':'resolution=merge-duplicates,return=minimal' } });
+    Cloud.pushing = false; Cloud.syncedAt = Date.now();
+    const wasFailed = Cloud.failed; Cloud.failed = false;
+    renderAccountUI();
+    if(wasFailed) toast('Your progress is saved to your account again.');
+    if(Cloud.dirty) cloudSchedule();
+    return true;
+  } catch(e){
+    Cloud.pushing = false; Cloud.dirty = true;
+    if(!Cloud.session) return false;                         // the session was dropped mid-push
+    if(!Cloud.failed){ Cloud.failed = true; renderAccountUI(); toast("Couldn't save to your account just now. Your work is kept on this device and we'll keep trying.", 6000); }
+    Cloud.timer = setTimeout(()=> cloudPush(), 15000);
+    return false;
+  }
+}
+function cloudSchedule(){
+  if(!Cloud.on || !Cloud.session || Cloud.quiet) return;
+  Cloud.dirty = true;
+  clearTimeout(Cloud.timer);
+  Cloud.timer = setTimeout(()=> cloudPush(), 1500);
+}
+function cloudFlush(){ if(Cloud.dirty && Cloud.session && !Cloud.pushing) cloudPush({ keepalive:true }); }
+window.addEventListener('pagehide', cloudFlush);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden'){ cloudFlush(); return; }
+  if(Cloud.session && !Cloud.dirty && !Cloud.pushing && Date.now() - Cloud.pulledAt > 60000) cloudSyncDown(false);
+});
+
+/* ---- Sign out ---- */
+function clearLocalProgress(){
+  try { [STORE_KEY, HISTORY_KEY, EXAM_SAVE_KEY].forEach(k=> localStorage.removeItem(k)); } catch(e){ /* nothing to clear */ }
+}
+function confirmSignOut(){
+  showGuide({
+    kicker:'Sign out',
+    title:'Sign out of your account?',
+    html:'<p>Your progress is saved to your account. Signing out clears this device so the next person starts fresh. Sign back in any time to pick up where you left off.</p>',
+    primary:['Sign out', ()=> cloudSignOut()],
+    secondary:['Cancel', null]
+  });
+}
+async function cloudSignOut(){
+  if(!Cloud.session) return;
+  if(Cloud.dirty || Cloud.timer || Cloud.pushing){
+    clearTimeout(Cloud.timer); Cloud.timer = null;
+    const ok = await cloudPush();
+    if(!ok && Cloud.session){
+      showGuide({ kicker:'Not signed out', title:"Couldn't save your latest progress",
+        html:'<p>Check your connection and try again in a moment, so nothing is lost.</p>', primary:['OK', null] });
+      return;
+    }
+    if(!Cloud.session) return;
+  }
+  try { await cloudFetch('/auth/v1/logout', { method:'POST', auth:true }); } catch(e){ /* best effort */ }
+  cloudStore(null); Cloud.profile = null;
+  clearLocalProgress();
+  location.reload();
+}
+
+/* ---- Start-up: links from emails, then any saved session ---- */
+function cloudInit(){
+  const el = $('acct');
+  if(!Cloud.on){ el.hidden = true; return; }
+  el.hidden = false;
+  if(cloudHandleHash()) return;
+  Cloud.session = cloudStoredSession();
+  renderAccountUI();
+  if(Cloud.session) cloudResume();
+}
+/* Password-reset and confirmation emails link back here with tokens after the '#'. */
+function cloudHandleHash(){
+  const h = location.hash && location.hash.length > 1 ? new URLSearchParams(location.hash.slice(1)) : null;
+  if(!h || !(h.get('access_token') || h.get('error'))) return false;
+  history.replaceState(null, '', location.pathname + location.search);
+  if(h.get('error')){
+    renderAccountUI();
+    const why = h.get('error_description') || '';
+    openAuth('forgot', { error: /expired|invalid/i.test(why) ? 'That link has expired. Enter your email and we will send a new one.' : 'That link did not work. Enter your email to get a new one.' });
+    return true;
+  }
+  cloudFinishLink({ access_token: h.get('access_token'), refresh_token: h.get('refresh_token') || '',
+                    expires_at: Date.now() + (parseInt(h.get('expires_in'), 10) || 3600) * 1000, user: null }, h.get('type'));
+  return true;
+}
+window.addEventListener('hashchange', ()=>{ if(Cloud.on) cloudHandleHash(); });
+async function cloudFinishLink(s, type){
+  try {
+    const u = await cloudFetch('/auth/v1/user', { headers:{ 'Authorization': 'Bearer ' + s.access_token } });
+    s.user = { id: u.id, email: u.email || '' };
+    cloudStore(s);
+  } catch(e){ renderAccountUI(); toast('That link did not work. Try signing in.', 6000); return; }
+  await cloudLoadProfile();
+  renderAccountUI();
+  if(type === 'recovery'){ openAuth('reset'); return; }
+  toast('You are signed in.');
+  cloudFinishSignIn({ ask:true });
+}
+async function cloudResume(){
+  await cloudLoadProfile();
+  renderAccountUI();
+  await cloudSyncDown(true);
+}
+
+/* ---- Account button, menu and the My Progress strip ---- */
+function initials(name, email){
+  const src = (name || '').trim() || (email || '').split('@')[0];
+  const parts = src.replace(/[._\-]+/g, ' ').split(/\s+/).filter(Boolean);
+  const first = (parts[0] || '')[0] || '', last = parts.length > 1 ? (parts[parts.length-1][0] || '') : '';
+  return (first + last).toUpperCase() || '?';
+}
+function acctName(){
+  const p = Cloud.profile, s = Cloud.session;
+  if(!s) return '';
+  const n = p && p.display_name ? String(p.display_name).trim() : '';
+  return n || (s.user.email ? s.user.email.split('@')[0] : 'Account');
+}
+const firstName = () => acctName().split(/\s+/)[0];
+function agoText(ms){
+  const d = Date.now() - ms;
+  if(d < 60000) return 'just now';
+  const m = Math.round(d / 60000); if(m < 60) return m + (m === 1 ? ' minute ago' : ' minutes ago');
+  const h = Math.round(d / 3600000); if(h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
+  const days = Math.round(d / 86400000); if(days === 1) return 'yesterday'; if(days < 30) return days + ' days ago';
+  return new Date(ms).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+}
+function renderAccountUI(){
+  if(!Cloud.on) return;
+  const signed = !!Cloud.session, btn = $('acct-btn');
+  btn.classList.toggle('signed', signed);
+  $('acct-avatar').textContent = signed ? initials(acctName(), Cloud.session.user.email) : '';
+  $('acct-name').textContent = signed ? firstName() : 'Sign in';
+  btn.setAttribute('aria-label', signed ? 'Account menu, ' + acctName() : 'Sign in or create an account');
+  $('acct-admin').hidden = !(signed && Cloud.profile && Cloud.profile.role === 'admin');
+  if(signed) $('acct-who').innerHTML = `<b>${escHtml(acctName())}</b><span>${escHtml(Cloud.session.user.email)}</span>`;
+  else closeAcctMenu();
+  if($('view-progress').classList.contains('active')) renderAccountCard();
+  const where = $('history-where');
+  if(where) where.textContent = signed ? '(saved to your account)' : '(saved on this computer)';
+}
+function renderAccountCard(){
+  const el = $('acct-card');
+  if(!Cloud.on){ el.hidden = true; return; }
+  el.hidden = false;
+  if(!Cloud.session){
+    el.innerHTML = `<div class="acct-strip"><div class="avatar lg guest" aria-hidden="true">${ico('users')}</div>
+      <div class="acct-text"><b>Save your progress to an account</b><span>Use your work email, and your progress and stats follow you to any computer or phone.</span></div>
+      <div class="acct-actions"><button class="btn sm" data-auth="signup">Create account</button><button class="btn ghost sm" data-auth="signin">Sign in</button></div></div>`;
+    return;
+  }
+  const when = Cloud.failed ? "Not saved yet. We'll keep trying." : (Cloud.syncedAt ? 'Saved to your account ' + agoText(Cloud.syncedAt) + '.' : 'Saving to your account…');
+  el.innerHTML = `<div class="acct-strip"><div class="avatar lg" aria-hidden="true">${escHtml(initials(acctName(), Cloud.session.user.email))}</div>
+    <div class="acct-text"><b>${escHtml(acctName())}</b><span>${escHtml(Cloud.session.user.email)} · ${escHtml(when)}</span></div>
+    <div class="acct-actions"><button class="btn ghost sm" data-auth="signout">Sign out</button></div></div>`;
+}
+$('acct-card').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-auth]');
+  if(!b) return;
+  if(b.dataset.auth === 'signout') confirmSignOut(); else openAuth(b.dataset.auth);
+});
+function renderStats(){
+  const s = state.stats, answered = s.answered|0, acc = answered ? Math.round(100 * (s.correct|0) / answered) : null;
+  const days = Object.keys(state.days).length;
+  const best = examHistory.length ? Math.max(...examHistory.map(a=> a.score)) : null;
+  const items = [
+    [answered, 'Questions answered', ''],
+    [acc === null ? '—' : acc + '%', 'Overall accuracy', acc === null ? 'Answer a few to see it' : ''],
+    [days, days === 1 ? 'Day studied' : 'Days studied', ''],
+    [examHistory.length, examHistory.length === 1 ? 'Mock exam' : 'Mock exams', best !== null ? 'Best ' + best + '%' : '']
+  ];
+  $('stat-grid').innerHTML = items.map(([v, l, sub])=> `<div class="stat"><b>${v}</b><span>${l}</span>${sub ? `<small>${escHtml(sub)}</small>` : ''}</div>`).join('');
+}
+function touchDay(){
+  const d = new Date(), key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  if(!state.days[key]) state.days[key] = true;
+}
+
+function openAcctMenu(){
+  $('acct-menu').hidden = false;
+  $('acct-btn').setAttribute('aria-expanded', 'true');
+  const f = $('acct-menu').querySelector('button[role="menuitem"]:not([hidden])');
+  if(f) f.focus();
+}
+function closeAcctMenu(){
+  if($('acct-menu').hidden) return;
+  $('acct-menu').hidden = true;
+  $('acct-btn').setAttribute('aria-expanded', 'false');
+}
+$('acct-btn').addEventListener('click', ()=>{
+  if(!Cloud.session){ openAuth('signin'); return; }
+  if($('acct-menu').hidden) openAcctMenu(); else closeAcctMenu();
+});
+document.addEventListener('click', e=>{ if(!$('acct').contains(e.target)) closeAcctMenu(); });
+$('acct-menu').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-act]');
+  if(!b) return;
+  closeAcctMenu();
+  if(b.dataset.act === 'progress') showView('progress');
+  else if(b.dataset.act === 'admin') showView('admin');
+  else if(b.dataset.act === 'signout') confirmSignOut();
+});
+$('acct').addEventListener('keydown', e=>{
+  if($('acct-menu').hidden) return;
+  if(e.key === 'Escape'){ e.preventDefault(); closeAcctMenu(); $('acct-btn').focus(); return; }
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    e.preventDefault();
+    const items = [...$('acct-menu').querySelectorAll('button[role="menuitem"]:not([hidden])')];
+    const i = items.indexOf(document.activeElement);
+    items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus();
+  }
+});
+
+/* ---- Sign-in pop-up ---- */
+const AUTH_COPY = {
+  signin:{ title:'Sign in',             lead:'Pick up right where you left off, on any device.',                                          submit:'Sign in' },
+  signup:{ title:'Create your account', lead:'Use your work email. Your progress and stats will follow you to any computer or phone.',    submit:'Create account' },
+  forgot:{ title:'Reset your password', lead:"Enter your email and we'll send you a link to set a new password.",                         submit:'Send the link' },
+  reset: { title:'Set a new password',  lead:'Choose a new password for your account.',                                                   submit:'Save new password' }
+};
+let authMode = 'signin', authThen = null, authReturnFocus = null;
+function openAuth(mode, o){
+  o = o || {};
+  authThen = o.then || null;
+  setAuthMode(mode || 'signin');
+  if(o.email) $('auth-email').value = o.email;
+  if(o.error) authMsg('error', o.error);
+  $('auth-alt').hidden = !authThen;
+  if($('auth').hidden) authReturnFocus = document.activeElement;
+  $('auth').hidden = false;
+  document.body.classList.add('modal-open');
+  setInert(true);
+  $('auth').scrollTop = 0;
+  const first = authMode === 'signup' ? $('auth-name') : (authMode === 'reset' ? $('auth-pass') : $('auth-email'));
+  first.focus({ preventScroll:true });
+}
+function closeAuth(){
+  if($('auth').hidden) return;
+  $('auth').hidden = true;
+  document.body.classList.remove('modal-open');
+  setInert(false);
+  $('auth-form').reset();
+  if($('auth-pass').type !== 'password') togglePw();
+  authMsg('error', ''); authMsg('ok', ''); setAuthBusy(false);
+  if(authReturnFocus && document.contains(authReturnFocus)) authReturnFocus.focus({ preventScroll:true });
+  authReturnFocus = null;
+}
+/* Closing the pop-up without signing in still carries on with whatever was about to happen. */
+function dismissAuth(){
+  if($('auth-submit').disabled) return;
+  const then = authThen; authThen = null;
+  closeAuth();
+  if(then) then();
+}
+function setAuthMode(mode){
+  authMode = mode;
+  const c = AUTH_COPY[mode];
+  $('auth-title').textContent = c.title; $('auth-lead').textContent = c.lead; $('auth-submit').textContent = c.submit;
+  const seg = $('auth-seg');
+  seg.hidden = !(mode === 'signin' || mode === 'signup');
+  seg.querySelectorAll('button').forEach(b=>{ const on = b.dataset.mode === mode; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  $('auth-f-name').hidden = mode !== 'signup';
+  $('auth-f-email').hidden = mode === 'reset';
+  $('auth-f-pass').hidden = mode === 'forgot';
+  $('auth-pass').setAttribute('autocomplete', mode === 'signin' ? 'current-password' : 'new-password');
+  $('auth-pass-hint').hidden = mode === 'signin';
+  $('auth-forgot').hidden = mode !== 'signin';
+  $('auth-back').hidden = mode !== 'forgot';
+  authMsg('error', ''); authMsg('ok', '');
+}
+function authMsg(kind, text){ const el = $(kind === 'ok' ? 'auth-ok' : 'auth-error'); el.textContent = text || ''; el.hidden = !text; }
+function setAuthBusy(on, label){
+  const b = $('auth-submit');
+  b.disabled = on;
+  b.classList.toggle('busy', on);
+  b.textContent = on ? label : AUTH_COPY[authMode].submit;
+}
+function authFail(msg, focusId){ authMsg('error', msg); if(focusId) $(focusId).focus(); }
+function authDone(msg, finish){
+  const then = authThen; authThen = null;
+  closeAuth();
+  renderAccountUI();
+  toast(msg);
+  cloudFinishSignIn(Object.assign({ then }, finish || {}));
+}
+function togglePw(){
+  const i = $('auth-pass'), b = $('auth-pw-toggle'), show = i.type === 'password';
+  i.type = show ? 'text' : 'password';
+  b.textContent = show ? 'Hide' : 'Show';
+  b.setAttribute('aria-pressed', show ? 'true' : 'false');
+  b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+}
+$('auth-pw-toggle').addEventListener('click', ()=>{ togglePw(); $('auth-pass').focus(); });
+$('auth-seg').addEventListener('click', e=>{ const b = e.target.closest('button[data-mode]'); if(b && b.dataset.mode !== authMode){ setAuthMode(b.dataset.mode); (b.dataset.mode === 'signup' ? $('auth-name') : $('auth-email')).focus(); } });
+$('auth-forgot').addEventListener('click', ()=>{ setAuthMode('forgot'); $('auth-email').focus(); });
+$('auth-back').addEventListener('click', ()=>{ setAuthMode('signin'); $('auth-email').focus(); });
+$('auth-alt').addEventListener('click', dismissAuth);
+$('auth-x').addEventListener('click', dismissAuth);
+$('auth').addEventListener('click', e=>{ if(e.target === $('auth')) dismissAuth(); });
+$('auth').addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ e.preventDefault(); dismissAuth(); return; }
+  if(e.key !== 'Tab') return;
+  const f = [...$('auth').querySelectorAll('button, input')].filter(x=> !x.disabled && x.offsetParent !== null);
+  if(!f.length) return;
+  const first = f[0], last = f[f.length-1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+$('auth-form').addEventListener('submit', async e=>{
+  e.preventDefault();
+  if($('auth-submit').disabled) return;
+  const name = $('auth-name').value.trim(), email = $('auth-email').value.trim().toLowerCase(), pw = $('auth-pass').value;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  authMsg('error', ''); authMsg('ok', '');
+  try {
+    if(authMode === 'signup'){
+      if(!name) return authFail('Enter your name.', 'auth-name');
+      if(!emailOk) return authFail('Enter a valid email address.', 'auth-email');
+      if(pw.length < 8) return authFail('Use at least 8 characters for your password.', 'auth-pass');
+      setAuthBusy(true, 'Creating your account…');
+      const r = await cloudSignUp(name, email, pw);
+      if(r === 'confirm'){
+        setAuthBusy(false); setAuthMode('signin'); $('auth-email').value = email;
+        authMsg('ok', 'Almost there: open the confirmation link we sent to ' + email + ', then sign in here.');
+        return;
+      }
+      authDone('Welcome, ' + firstName() + '. Your progress now saves to your account.', { ask:false });
+    } else if(authMode === 'signin'){
+      if(!emailOk) return authFail('Enter a valid email address.', 'auth-email');
+      if(!pw) return authFail('Enter your password.', 'auth-pass');
+      setAuthBusy(true, 'Signing in…');
+      await cloudSignIn(email, pw);
+      authDone('Welcome back, ' + firstName() + '.', { ask:true });
+    } else if(authMode === 'forgot'){
+      if(!emailOk) return authFail('Enter a valid email address.', 'auth-email');
+      setAuthBusy(true, 'Sending…');
+      await cloudForgot(email);
+      setAuthBusy(false);
+      authMsg('ok', 'If there is an account for ' + email + ', a reset link is on its way. Check your inbox and your spam folder.');
+    } else if(authMode === 'reset'){
+      if(pw.length < 8) return authFail('Use at least 8 characters for your password.', 'auth-pass');
+      setAuthBusy(true, 'Saving…');
+      await cloudSetPassword(pw);
+      authDone('Password updated. You are signed in.', { ask:true });
+    }
+  } catch(err){
+    setAuthBusy(false);
+    authMsg('error', err && err.message ? err.message : 'Something went wrong. Try again.');
+  }
+});
+
+/* ---- Toast ---- */
+let toastTimer = null, toastHide = null;
+function toast(msg, ms){
+  const t = $('toast');
+  clearTimeout(toastTimer); clearTimeout(toastHide);
+  t.textContent = msg; t.hidden = false;
+  requestAnimationFrame(()=> t.classList.add('show'));
+  toastTimer = setTimeout(()=>{ t.classList.remove('show'); toastHide = setTimeout(()=>{ t.hidden = true; }, 240); }, ms || 3500);
+}
+
+/* ---- Manager view ---- */
+let adminRows = [];
+async function renderAdmin(){
+  if(!Cloud.session || !Cloud.profile || Cloud.profile.role !== 'admin'){ showView('path'); return; }
+  const body = $('admin-body');
+  body.innerHTML = '<tr><td colspan="7" class="empty-note">Loading…</td></tr>';
+  $('admin-summary').textContent = '';
+  let rows;
+  try { rows = await cloudFetch('/rest/v1/profiles?select=id,email,display_name,role,created_at,progress(stats,updated_at)&order=display_name.asc', { auth:true }); }
+  catch(e){ body.innerHTML = `<tr><td colspan="7" class="empty-note">Couldn't load the team right now. ${escHtml(e.message)}</td></tr>`; return; }
+  adminRows = (Array.isArray(rows) ? rows : []).map(r=>{
+    const pr = Array.isArray(r.progress) ? r.progress[0] : r.progress;
+    const st = (pr && pr.stats && typeof pr.stats === 'object') ? pr.stats : {};
+    const active = pr && pr.updated_at ? new Date(pr.updated_at).getTime() : 0;
+    return { id:r.id, name: r.display_name || String(r.email || '').split('@')[0], email: r.email || '', role: r.role, joined: r.created_at ? new Date(r.created_at).getTime() : 0, active, st };
+  }).sort((a, b)=> (b.active || b.joined) - (a.active || a.joined));
+  drawAdmin();
+}
+function drawAdmin(){
+  const q = normText($('admin-filter').value);
+  const rows = adminRows.filter(r=> !q || normText(r.name + ' ' + r.email).includes(q));
+  const week = Date.now() - 7 * 86400000;
+  $('admin-summary').textContent = adminRows.length
+    ? `${plural(adminRows.length, 'account')} · ${adminRows.filter(r=> r.st.ready).length} finished the Guided Path · ${adminRows.filter(r=> r.active > week).length} active in the last 7 days`
+    : '';
+  const total = pathStatus().steps.length;
+  $('admin-body').innerHTML = rows.length ? rows.map(r=>{
+    const st = r.st;
+    const stepsTotal = st.steps_total || total, pct = stepsTotal ? Math.round(100 * (st.steps_done|0) / stepsTotal) : 0;
+    const cards = st.cards_total ? Math.round(100 * (st.cards_known|0) / st.cards_total) : 0;
+    const acc = st.answered ? Math.round(100 * (st.correct|0) / st.answered) : null;
+    const best = typeof st.best_exam === 'number' ? st.best_exam + '%' : '—';
+    return `<tr><td><b>${escHtml(r.name)}</b>${r.role === 'admin' ? ' <span class="pill new">Manager</span>' : ''}<span class="sub">${escHtml(r.email)}</span></td>
+      <td><b>${st.steps_done|0} of ${stepsTotal}</b>${st.ready ? ' <span class="pill done">Done</span>' : ''}<div class="mini-bar" aria-hidden="true"><i style="width:${pct}%"></i></div></td>
+      <td>${cards}%</td>
+      <td>${best}${typeof st.best_exam === 'number' ? `<span class="sub">${plural(st.exams|0, 'exam')} taken</span>` : ''}</td>
+      <td>${st.answered|0}</td>
+      <td>${acc === null ? '—' : acc + '%'}</td>
+      <td>${r.active ? agoText(r.active) : (r.joined ? 'Joined ' + agoText(r.joined) : '—')}</td></tr>`;
+  }).join('') : `<tr><td colspan="7" class="empty-note">${adminRows.length ? 'No one matches that search.' : 'No accounts yet.'}</td></tr>`;
+}
+$('admin-filter').addEventListener('input', drawAdmin);
+$('admin-refresh').addEventListener('click', renderAdmin);
+
 /* =========================================================
    INIT
    ========================================================= */
@@ -4455,8 +5330,10 @@ syncTopbar();
 $('exam-jump').open = window.innerWidth > 600;
 restoreExam();
 renderPath();
-/* First visit: a big welcome pop-up. People who already have progress skip it. */
-if(!state.welcomed){
+cloudInit();
+if(Cloud.on) $('hero-save').textContent = 'Sign in and your progress follows you to any device.';
+/* First visit: a big welcome pop-up. People who already have progress (or an account) skip it. */
+if(!state.welcomed && !Cloud.session){
   const hasProgress = state.introDone || examHistory.length > 0 || CATS.some(c=> areaProgress(c.key).status !== 'new');
   state.welcomed = true;
   persist();
