@@ -2693,8 +2693,7 @@ function beginStep(id){
       `<p class="gm-note">You can stop any time. Your place is saved.</p>`,
     primary:['Start the lesson →', ()=>{
       state.pathStage[s.area] = undefined;
-      const el = document.querySelector('.pstep[data-step="'+id+'"] .stages');
-      if(el) el.scrollIntoView({block:'start'});
+      openPathStep(id);          // the step's own heading lands just under the top bar, chips right below it
     }],
     secondary:['Not now', null]
   });
@@ -2777,7 +2776,7 @@ function mockBody(s, st){
   const label = inProg ? 'Resume your mock exam →' : (mode === 'study' ? 'Start a Study-mode exam →' : 'Start a Timed exam →');
   const btn = `<div class="big-action"><button class="btn gold huge" data-act="mock-start" data-mode="${mode}">${btnLabel(label)}</button></div>`;
   if(mode === 'study'){
-    return `<p>Take one full-length practice exam with feedback after every question. This is where you get used to how the exam asks things.</p>
+    return `<p>Take one full-length practice exam, untimed, with feedback after every question. This is where you get used to how the exam asks things.</p>
       <p class="stat-line">Plan on about 75 to 90 minutes. You can stop and pick it up later; your place is saved on this device. Every question you miss is saved to <b>My Progress</b> so you can drill it afterward.</p>
       ${btn}
       ${s.done ? `<div class="done-line">${ico('check')} Done. Your best Study-mode score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%.</div>` : ''}`;
