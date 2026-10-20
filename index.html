@@ -84,12 +84,12 @@
     -webkit-backdrop-filter:saturate(1.4) blur(10px); backdrop-filter:saturate(1.4) blur(10px);
     border-bottom:1px solid var(--line);
   }
-  .topbar-in{ max-width:1180px; margin:0 auto; padding:0 var(--s5); display:flex; align-items:center; gap:var(--s4); min-height:var(--nav-h); }
+  .topbar-in{ max-width:1280px; margin:0 auto; padding:0 var(--s5); display:flex; align-items:center; gap:var(--s6); min-height:var(--nav-h); }
   header.top{ order:1; min-width:0; }
   .brand{ display:flex; align-items:center; gap:10px; flex:0 0 auto; text-decoration:none; color:var(--navy); }
   .brand-logo{ display:block; flex:0 0 auto; width:32px; height:32px; }
   header.top h1{ margin:0; font-size:.98rem; font-weight:600; letter-spacing:-.005em; color:var(--navy); white-space:nowrap; }
-  nav.tabs{ position:relative; order:2; display:flex; align-items:center; gap:2px; margin-left:auto; min-width:0; }
+  nav.tabs{ position:relative; order:2; flex:0 0 auto; display:flex; align-items:center; gap:2px; margin:0 auto; }   /* centered in the space between the title and the account button */
   nav.tabs button{
     position:relative; display:inline-flex; align-items:center; gap:6px;
     background:none; border:0; color:var(--ink-2);
@@ -101,7 +101,7 @@
   nav.tabs button.active{ color:var(--navy); font-weight:600; }
   nav.tabs .nav-ink{ position:absolute; bottom:-1px; height:2px; background:var(--navy); border-radius:2px 2px 0 0; transition:left var(--t) var(--ease), width var(--t) var(--ease); pointer-events:none; }
   nav.tabs .tab-sep{ width:1px; height:18px; background:var(--line-strong); margin:0 var(--s2); flex:0 0 1px; }
-  nav.tabs button.tab-path{ border:1px solid var(--navy); border-radius:999px; color:var(--navy); font-weight:600; padding:7px 16px; margin-right:var(--s1); }
+  nav.tabs button.tab-path{ border:1px solid var(--navy); border-radius:999px; color:var(--navy); font-weight:600; min-height:36px; padding:7px 18px; margin-right:var(--s1); }
   nav.tabs button.tab-path.active{ background:var(--navy); color:#fff; }
   nav.tabs button.has-dot::after{ content:''; width:7px; height:7px; border-radius:50%; background:var(--accent-fill); }
   nav.tabs button:focus-visible{ outline-offset:-4px; }
@@ -495,7 +495,7 @@
 
 
   /* ---- Account button and menu (top bar) ---- */
-  .acct{ position:relative; order:3; flex:0 0 auto; margin-left:var(--s3); }
+  .acct{ position:relative; order:3; flex:0 0 auto; }
   .acct[hidden]{ display:none; }
   .acct-btn{
     display:inline-flex; align-items:center; gap:8px;
@@ -511,7 +511,6 @@
   .acct-btn .avatar{ display:none; }
   .acct-btn.signed .avatar{ display:grid; }
   .acct-btn.signed .acct-name{ display:none; }
-  @media (min-width:1400px){ .acct-btn.signed .acct-name{ display:inline; } }
   .avatar{ display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--navy); color:#fff; font-size:.68rem; font-weight:600; letter-spacing:.02em; }
   .avatar.lg{ width:40px; height:40px; font-size:.84rem; }
   .avatar.guest{ background:var(--navy-tint); color:var(--navy); }
@@ -634,21 +633,22 @@
   /* ---- Phones and small screens ---- */
 
   /* ---- Tablets and narrow laptops: brand row + nav row ---- */
-  @media (max-width:1180px){
-    .topbar-in{ flex-wrap:wrap; gap:0; padding:0 var(--s3); }
+  @media (max-width:1239px){
+    .topbar-in{ flex-wrap:wrap; gap:0 var(--s4); padding:0 var(--s3); min-height:0; }   /* 16px always between the title and the account button */
     header.top{ flex:1 1 50%; min-width:0; order:1; }   /* shares the first row with the account button; grows to the full row without it */
-    .brand{ min-width:0; padding:12px 4px 4px; max-height:60px; overflow:hidden; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease); }
-    header.top h1{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
-    .acct{ order:2; margin-left:auto; padding:8px 4px 0; max-height:60px; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease), visibility var(--t) var(--ease); }
+    .brand{ min-width:0; padding:12px 4px 7px; max-height:60px; overflow:hidden; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease); }
+    header.top h1{ min-width:0; white-space:normal; text-wrap:balance; line-height:1.15; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; }   /* goes to two lines beside the seal, never cut off */
+    .acct{ order:2; margin-left:auto; padding:5px 4px 0; max-height:60px; transition:max-height var(--t) var(--ease), opacity var(--t) var(--ease), padding var(--t) var(--ease), visibility var(--t) var(--ease); }
     .topbar.scrolled .brand{ max-height:0; padding-top:0; padding-bottom:0; opacity:0; }
     .topbar.scrolled .acct{ max-height:0; padding-top:0; padding-bottom:0; opacity:0; visibility:hidden; }
-    nav.tabs{ order:3; flex:1 0 100%; margin-left:0; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    nav.tabs{ order:3; flex:1 0 100%; margin:0; padding:0 0 6px; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; transition:padding var(--t) var(--ease); }
+    .topbar.scrolled nav.tabs{ padding-top:7px; }
     nav.tabs::-webkit-scrollbar{ display:none; }
-    nav.tabs button{ flex:0 0 auto; padding:12px 10px 12px; }
-    nav.tabs button.tab-path{ margin:0 var(--s2) 4px 2px; }
+    nav.tabs button{ flex:0 0 auto; padding:10px; }
+    nav.tabs button.tab-path{ margin:0 var(--s2) 0 4px; }   /* lines up with the seal above it */
     nav.tabs .tab-sep{ display:none; }
     nav.tabs .nav-ink{ display:none; }
-    nav.tabs button.active:not(.tab-path)::before{ content:''; position:absolute; left:10px; right:10px; bottom:0; height:2px; background:var(--navy); border-radius:2px 2px 0 0; }
+    nav.tabs button.active:not(.tab-path)::before{ content:''; position:absolute; left:10px; right:10px; bottom:-6px; height:2px; background:var(--navy); border-radius:2px 2px 0 0; }
   }
   @media (max-width:900px){
   }
@@ -705,16 +705,15 @@
     .area-row .row-actions{ grid-column:1 / -1; }
     .area-row .row-actions .btn{ flex:1; }
   }
+  @media (max-width:440px){
+    header.top h1{ font-size:.875rem; }
+  }
   @media (max-width:420px){
-    header.top h1{ font-size:.88rem; }
     .acct-btn{ min-height:34px; padding:4px 12px; font-size:.8rem; }
     .acct-btn.signed{ padding:2px 8px 2px 2px; }
   }
   @media (max-width:380px){
-    header.top h1{ font-size:.8rem; }
-    .brand{ gap:8px; }
-    .brand-logo{ width:28px; height:28px; }
-    nav.tabs button{ padding:12px 8px; font-size:.84rem; }
+    nav.tabs button{ padding:10px 8px; font-size:.84rem; }
     .chart-item{ grid-template-columns:92px 1fr 40px; font-size:.72rem; }
     table.progress-table{ font-size:.78rem; }
   }
