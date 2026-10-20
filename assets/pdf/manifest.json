@@ -1,0 +1,56 @@
+{
+  "flashcards-terms.pdf": {
+    "title": "Flashcards: 1. Terms & Concepts",
+    "cards": 16,
+    "pages": 4,
+    "split": 0
+  },
+  "flashcards-policies.pdf": {
+    "title": "Flashcards: 2. Title Insurance Policies",
+    "cards": 17,
+    "pages": 5,
+    "split": 0
+  },
+  "flashcards-ownership.pdf": {
+    "title": "Flashcards: 3. Real Estate Ownership",
+    "cards": 11,
+    "pages": 3,
+    "split": 0
+  },
+  "flashcards-rights.pdf": {
+    "title": "Flashcards: 4. Rights & Interests",
+    "cards": 12,
+    "pages": 3,
+    "split": 0
+  },
+  "flashcards-legal.pdf": {
+    "title": "Flashcards: 5. Legal Descriptions",
+    "cards": 11,
+    "pages": 3,
+    "split": 0
+  },
+  "flashcards-transfer.pdf": {
+    "title": "Flashcards: 6. Methods of Transfer",
+    "cards": 12,
+    "pages": 3,
+    "split": 0
+  },
+  "flashcards-colaw.pdf": {
+    "title": "Flashcards: 7. Colorado Laws & Regulations",
+    "cards": 58,
+    "pages": 15,
+    "split": 0
+  },
+  "flashcards-colaw-handout.pdf": {
+    "title": "Flashcards: Colorado law class handout",
+    "cards": 94,
+    "pages": 25,
+    "split": 5
+  },
+  "flashcards-all.pdf": {
+    "title": "Flashcards: all 7 content areas",
+    "cards": 137,
+    "pages": 36,
+    "split": 0
+  }
+}
