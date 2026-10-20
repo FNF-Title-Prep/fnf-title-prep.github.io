@@ -4,7 +4,7 @@ Accounts are on, in **local mode**: everything lives inside the browser it was c
 with no server behind the site.
 
 ```js
-const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], managerCode:'title-manager', sample:true };
+const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], managerCode:'martinhuff', sample:true };
 ```
 
 - The first thing a new person sees is the **Create your account** pop-up (name, work email,
@@ -29,7 +29,7 @@ const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], man
   computer so the Manager view has something to show; her record is a real run of the site by
   a test agent. Set `sample` to false (and the sample disappears from new computers; on a
   computer that already has it, sign in as a manager and it stays until the browser data is
-  cleared). Sign in as her with `taylor.brooks@fnf.com` / `Welcome2026!` to see My Progress
+  cleared). Sign in as her with `taylor.brooks@example.com` / `Welcome2026!` to see My Progress
   from a new hire's side.
 
 To make progress follow people everywhere (and give managers one view of the whole team),
