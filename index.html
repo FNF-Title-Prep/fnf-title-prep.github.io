@@ -475,6 +475,7 @@
   @keyframes modalIn{ from{ opacity:0; transform:translateY(10px) scale(.985); } to{ opacity:1; transform:none; } }
   .modal-x{ position:absolute; top:var(--s2); right:var(--s2); display:grid; place-items:center; width:40px; height:40px; background:none; border:0; border-radius:var(--r-sm); color:var(--muted); cursor:pointer; }
   .modal-x:hover{ background:var(--surface-2); color:var(--ink); }
+  .modal-x[hidden]{ display:none; }
   .modal-kicker{ text-align:center; font-size:.7rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
   .modal h2{ margin:var(--s1) 0 var(--s3); text-align:center; font-size:1.5rem; letter-spacing:-.025em; line-height:1.2; color:var(--ink); }
   .modal-body p{ margin:0 0 var(--s3); font-size:.95rem; color:var(--ink-2); }
@@ -1216,8 +1217,9 @@ const PRACTICE_SEAT_SHARE = 0.70;
 const AREA_DONE = { cards:0.8, quiz:80 };
 /* Accounts (optional). Fill in the Supabase project URL and anon key to turn on sign-in and
    progress that follows a person to any device (see docs/ACCOUNTS.md). Leave both empty and
-   the site saves to this device only. */
-const CLOUD = { url:'', anonKey:'' };
+   the site saves to this device only. With `required`, the first screen on every new device
+   is the account pop-up; set it to false to allow "Continue without an account". */
+const CLOUD = { url:'', anonKey:'', required:true };
 /* Targeted practice sizes. */
 const MISSES_SESSION_MAX = 30;
 const FOCUS_TEST_SIZE = 40;
@@ -2655,7 +2657,7 @@ function showWelcome(){
   const st = pathStatus();
   const total = Math.round(st.steps.reduce((sum, x)=> sum + stepMinutes(x), 0) / 60);
   showGuide({
-    kicker:'Welcome',
+    kicker: Cloud.session ? 'Welcome, ' + firstName() : 'Welcome',
     title:"Let's get you ready for the Colorado title exam",
     html:`<p>No experience needed. We'll walk you through it one step at a time:</p>` +
       gmList([
@@ -2663,7 +2665,7 @@ function showWelcome(){
         '<b>One short lesson for each of the 7 content areas.</b> Read it, study the flashcards, then take a quiz.',
         '<b>Full practice exams.</b> First with answers after each question, then timed like the real thing.'
       ]) +
-      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.on ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.'} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
+      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.session ? 'Your progress saves to your account, so you can pick up on any computer or phone.' : (Cloud.on ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.')} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
     primary:['Get started →', ()=> (Cloud.on && !Cloud.session) ? openAuth('signup', { then: ()=> beginStep('intro') }) : beginStep('intro')],
     secondary:["I'll look around first", null]
   });
@@ -4678,7 +4680,7 @@ const Cloud = {
   on: !!(CLOUD.url && CLOUD.anonKey),
   session: null,      // {access_token, refresh_token, expires_at (ms), user:{id,email}}
   profile: null,      // {id, email, display_name, role}
-  dirty:false, timer:null, pushing:false, syncedAt:0, pulledAt:0, failed:false, quiet:false
+  dirty:false, timer:null, pushing:false, syncedAt:0, pulledAt:0, failed:false, quiet:false, outage:false
 };
 const cloudUrl = path => CLOUD.url.replace(/\/+$/, '') + path;
 const siteUrl = () => location.origin + location.pathname;
@@ -4734,8 +4736,10 @@ async function cloudFetch(path, o){
     headers['Authorization'] = 'Bearer ' + CLOUD.anonKey;
   }
   let res;
+  const ctrl = o.timeout && typeof AbortController === 'function' ? new AbortController() : null;
+  if(ctrl) setTimeout(()=> ctrl.abort(), o.timeout);
   try {
-    res = await fetch(cloudUrl(path), { method: o.method || 'GET', headers, body: o.body === undefined ? undefined : JSON.stringify(o.body), keepalive: !!o.keepalive, cache: 'no-store' });
+    res = await fetch(cloudUrl(path), { method: o.method || 'GET', headers, body: o.body === undefined ? undefined : JSON.stringify(o.body), keepalive: !!o.keepalive, cache: 'no-store', signal: ctrl ? ctrl.signal : undefined });
   } catch(e){ throw cloudError(cloudMessage(null, 0), 0, null); }
   const text = await res.text();
   let json = null;
@@ -4941,7 +4945,7 @@ document.addEventListener('visibilitychange', ()=>{
 
 /* ---- Sign out ---- */
 function clearLocalProgress(){
-  try { [STORE_KEY, HISTORY_KEY, EXAM_SAVE_KEY].forEach(k=> localStorage.removeItem(k)); } catch(e){ /* nothing to clear */ }
+  try { [STORE_KEY, HISTORY_KEY, EXAM_SAVE_KEY, GUEST_KEY].forEach(k=> localStorage.removeItem(k)); } catch(e){ /* nothing to clear */ }
 }
 function confirmSignOut(){
   showGuide({
@@ -5129,14 +5133,19 @@ const AUTH_COPY = {
   forgot:{ title:'Reset your password', lead:"Enter your email and we'll send you a link to set a new password.",                         submit:'Send the link' },
   reset: { title:'Set a new password',  lead:'Choose a new password for your account.',                                                   submit:'Save new password' }
 };
-let authMode = 'signin', authThen = null, authReturnFocus = null;
+let authMode = 'signin', authThen = null, authReturnFocus = null, authGate = false;
+const GUEST_KEY = 'coTitleGuest_v1';
+const hardGate = () => authGate && CLOUD.required !== false && !Cloud.outage;
 function openAuth(mode, o){
   o = o || {};
   authThen = o.then || null;
+  authGate = !!o.gate;
   setAuthMode(mode || 'signin');
   if(o.email) $('auth-email').value = o.email;
   if(o.error) authMsg('error', o.error);
-  $('auth-alt').hidden = !authThen;
+  $('auth-kicker').textContent = authGate ? 'Welcome' : 'Your account';
+  $('auth-alt').hidden = !authThen || hardGate();
+  $('auth-x').hidden = hardGate();
   if($('auth').hidden) authReturnFocus = document.activeElement;
   $('auth').hidden = false;
   document.body.classList.add('modal-open');
@@ -5148,6 +5157,8 @@ function openAuth(mode, o){
 function closeAuth(){
   if($('auth').hidden) return;
   $('auth').hidden = true;
+  authGate = false;
+  $('auth-x').hidden = false;
   document.body.classList.remove('modal-open');
   setInert(false);
   $('auth-form').reset();
@@ -5158,10 +5169,35 @@ function closeAuth(){
 }
 /* Closing the pop-up without signing in still carries on with whatever was about to happen. */
 function dismissAuth(){
-  if($('auth-submit').disabled) return;
+  if($('auth-submit').disabled || hardGate()) return;   // the first-visit pop-up stays until they're signed in
   const then = authThen; authThen = null;
   closeAuth();
   if(then) then();
+}
+/* First visit with accounts on: the account pop-up comes first, then the welcome. */
+function openGate(){
+  openAuth('signup', { gate:true, then: afterGate });
+  cloudPing();
+}
+function afterGate(){
+  if(!Cloud.session){ try { localStorage.setItem(GUEST_KEY, '1'); } catch(e){ /* fine */ } }
+  if(!state.welcomed){
+    state.welcomed = true;
+    persist();
+    if(!localHasProgress() && $('guide').hidden) showWelcome();
+  }
+}
+/* If the account service can't be reached, nobody should be locked out of studying. */
+async function cloudPing(){
+  try { await cloudFetch('/rest/v1/rpc/signup_allowed', { method:'POST', body:{ email:'ping@example.invalid' }, timeout:6000 }); }
+  catch(e){ if(e.status === 0 || e.status >= 500) gateFallback(); }
+}
+function gateFallback(){
+  Cloud.outage = true;
+  if($('auth').hidden || !authGate) return;
+  authMsg('error', "The account service can't be reached right now. You can continue without an account; your work stays on this device until you sign in later.");
+  $('auth-alt').hidden = false;
+  $('auth-x').hidden = false;
 }
 function setAuthMode(mode){
   authMode = mode;
@@ -5257,6 +5293,7 @@ $('auth-form').addEventListener('submit', async e=>{
   } catch(err){
     setAuthBusy(false);
     authMsg('error', err && err.message ? err.message : 'Something went wrong. Try again.');
+    if(authGate && err && (err.status === 0 || err.status >= 500)) gateFallback();
   }
 });
 
@@ -5331,8 +5368,13 @@ restoreExam();
 renderPath();
 cloudInit();
 if(Cloud.on) $('hero-save').textContent = 'Sign in and your progress follows you to any device.';
-/* First visit: a big welcome pop-up. People who already have progress (or an account) skip it. */
-if(!state.welcomed && !Cloud.session){
+/* First visit. With accounts on, the account pop-up comes first and the welcome follows once
+   they're in. Otherwise a big welcome pop-up; people who already have progress skip it. */
+let guestChosen = false;
+try { guestChosen = localStorage.getItem(GUEST_KEY) === '1'; } catch(e){ /* fine */ }
+if(Cloud.on && !Cloud.session && (CLOUD.required !== false || !guestChosen)){
+  if($('auth').hidden) openGate();
+} else if(!state.welcomed && !Cloud.session){
   const hasProgress = state.introDone || examHistory.length > 0 || CATS.some(c=> areaProgress(c.key).status !== 'new');
   state.welcomed = true;
   persist();

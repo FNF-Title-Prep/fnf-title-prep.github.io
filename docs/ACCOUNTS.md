@@ -4,12 +4,18 @@ The site runs without any server. Accounts are optional and are added by filling
 values in `index.html`:
 
 ```js
-const CLOUD = { url:'https://YOUR-PROJECT.supabase.co', anonKey:'YOUR-ANON-KEY' };
+const CLOUD = { url:'https://YOUR-PROJECT.supabase.co', anonKey:'YOUR-ANON-KEY', required:true };
 ```
 
-Leave both empty and the site saves progress on the device only, exactly as before. Fill
-them in and people can create an account with their work email; their progress and stats
-then follow them to any computer or phone, and managers get a **Manager view**.
+Leave the URL and key empty and the site saves progress on the device only, exactly as
+before. Fill them in and the first thing a new person sees is the **Create your account**
+pop-up (work email + password); after that comes the welcome and step 1. Their progress and
+stats then follow them to any computer or phone, and managers get a **Manager view**.
+
+`required:true` means nobody can use the site without an account (the pop-up has no close
+button). Set it to `false` to add a "Continue without an account" choice. Either way, if the
+account service can't be reached, the pop-up says so and lets people continue on the device
+so nobody is locked out of studying.
 
 The backend is a free [Supabase](https://supabase.com) project: email + password sign-in
 (Supabase Auth) and two small tables (Postgres). The site talks to it with plain `fetch`;
