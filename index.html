@@ -796,13 +796,11 @@
       <div class="hero-sub" id="path-cta-sub"></div>
       <div id="path-progress"></div>
       <div class="exam-stats" id="path-stats"></div>
-      <div class="free-note">Rather study on your own? <b>Flashcards</b>, <b>Quizzes</b> and the <b>Mock Exam</b> are always open. No steps required.</div>
       <button type="button" class="linklike" id="path-help">How this works</button>
     </div>
 
     <div class="card">
       <h2 class="section-title">Your steps</h2>
-      <p class="section-sub">Open any step. The highlighted one is next, and nothing is locked.</p>
       <div id="path-steps"></div>
     </div>
 
@@ -811,13 +809,11 @@
       <p>The exam has 75 questions and a 75-minute limit. You need 70% to pass.</p>
       <p>The questions come from a much bigger pool of hundreds, so every sitting is a little different. Some questions repeat from one sitting to the next and some are new, usually a mix of both.</p>
       <p>The questions on this site are examples of what to expect, and many of them are likely to show up. But they are not a list of what's on the test. Learn the idea behind each answer, not just the answer.</p>
-      <p class="section-sub" style="margin-bottom:8px;">The seven content areas. Tap one to open its lesson.</p>
       <div class="tile-grid" id="exam-map"></div>
     </div>
 
     <div class="card">
       <h2 class="section-title">Plan around your test date</h2>
-      <p class="section-sub">Pick the day you plan to take the exam and get a suggested schedule. It's a pace to aim for — adjust it to fit your week.</p>
       <div class="date-row">
         <label for="test-date">Test date</label>
         <input type="date" id="test-date">
@@ -828,7 +824,6 @@
 
     <div class="card center">
       <h2 class="section-title">After you take the real exam</h2>
-      <p class="section-sub">Log your Pearson VUE score report on <b>My Progress</b>. The site will build a focus test around your weakest areas.</p>
       <button class="btn ghost" id="path-to-progress">Go to My Progress</button>
     </div>
   </section>
@@ -838,7 +833,6 @@
     <div class="back-banner" id="cards-banner" style="display:none;"></div>
     <header class="page-head">
       <h2 class="section-title" id="cards-h" tabindex="-1">Flashcards</h2>
-      <p class="section-sub" id="cards-sub">Pick a category and flip through its cards, in any order. Cards marked ★ Exam-style show how the real exam asks questions. They're likely topics, not the whole test.</p>
     </header>
     <div class="tiles-wrap">
       <div class="tile-grid" id="cards-tiles" role="group" aria-label="Flashcard categories"></div>
@@ -882,7 +876,6 @@
       </div>
 
       <div id="cards-handout" style="display:none;">
-        <p class="section-sub">From the licensing class review of Colorado statutes and regulations: definitions, rate and consumer-protection rules, standards of conduct, and the full A–Z curative statutes table.</p>
         <div class="fc-controls">
           <select id="gk-fc-deck-select" aria-label="Handout deck"></select>
           <button class="btn ghost sm" id="gk-fc-shuffle">Shuffle</button>
@@ -912,7 +905,6 @@
 
     <div class="card" id="print-card">
       <h2 class="section-title">Print your flashcards</h2>
-      <p class="section-sub">Each PDF has 4 cards to a page. Print single-sided, cut on the dashed lines, then fold each card in half: question on the front, answer on the back.</p>
       <div class="print-list" id="print-list"></div>
     </div>
   </section>
@@ -924,7 +916,6 @@
     <div id="quiz-pick">
       <header class="page-head">
         <h2 class="section-title" id="quiz-h" tabindex="-1">Quizzes</h2>
-        <p class="section-sub" id="quiz-sub">Pick a category, or mix them all, then choose a length. After every answer you'll see why it's right. Most questions are exam-style examples. The real exam draws from a much bigger pool, so learn the ideas, not just the answers.</p>
       </header>
       <div class="tiles-wrap">
         <div class="tile-grid" id="quiz-tiles" role="group" aria-label="Quiz categories"></div>
@@ -974,7 +965,6 @@
     <div class="card" id="exam-intro-card">
       <div class="exam-hero">
         <h2 class="section-title" id="exam-h" tabindex="-1">Mock Exam</h2>
-        <p class="section-sub">A full-length practice exam across all seven content areas. Most questions are exam-style examples, and every attempt draws a different mix, so no two are the same. The real exam draws from hundreds of questions, so use this to practice, then keep learning the ideas behind the answers.</p>
         <div class="exam-stats">
           <div class="s"><div class="n" id="exam-qcount">75</div><div class="l">Questions</div></div>
           <div class="s"><div class="n" id="exam-minutes-stat">75</div><div class="l">Minutes</div></div>
@@ -983,11 +973,9 @@
         <div class="mode-grid">
           <div class="mode">
             <button class="btn big" id="exam-start-study">Study mode</button>
-            <p><b>Untimed</b>, about 75 to 90 minutes. See whether you're right and read the explanation right after each question. Best to start here. If you stop, your place is saved on this device.</p>
           </div>
           <div class="mode">
             <button class="btn big ghost" id="exam-start-sim">Timed mode</button>
-            <p><b>75-minute timer</b> and no feedback until you submit, then a results report by content area. Use it closer to test day, and only when you have the full time.</p>
           </div>
         </div>
       </div>
@@ -995,12 +983,10 @@
 
     <div class="card" id="exam-targeted-card">
       <h2 class="section-title">Targeted practice</h2>
-      <p class="section-sub">Shorter sessions built around what you need most. They show feedback after every answer and don't count toward your mock exam history.</p>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn ghost" id="exam-start-misses"></button>
         <button class="btn ghost" id="exam-start-focus"></button>
       </div>
-      <p class="stat-line" id="exam-targeted-note"></p>
     </div>
 
     <div class="card" id="exam-play-card" style="display:none;">
@@ -1066,7 +1052,6 @@
   <section id="view-progress" class="view" aria-labelledby="progress-h">
     <header class="page-head">
       <h2 class="section-title" id="progress-h" tabindex="-1">My Progress</h2>
-      <p class="section-sub">Where you stand, what is left, and what to review next.</p>
     </header>
     <div class="card" id="acct-card" hidden></div>
     <div class="card">
@@ -1079,7 +1064,6 @@
 
     <div class="card">
       <h2 class="section-title">By content area</h2>
-      <p class="section-sub">Recent accuracy is your last 20 answers in each area across quizzes and mock exams.</p>
       <div class="area-rows" id="area-rows"></div>
       <div id="study-next"></div>
     </div>
@@ -1088,14 +1072,12 @@
 
     <div class="card" id="report-card">
       <h2 class="section-title">Took the real exam? Log your score report</h2>
-      <p class="section-sub">Your Pearson VUE score report shows an overall score and a bar for each content area. Enter them here and the site will build a <b>focus test</b> weighted toward your weakest areas.</p>
       <div class="form-row">
         <label for="rp-overall">Overall score</label>
         <input type="number" id="rp-overall" min="0" max="100" inputmode="numeric" style="width:90px;" placeholder="e.g. 63">
         <label for="rp-date">Date taken</label>
         <input type="date" id="rp-date">
       </div>
-      <p class="section-sub" style="margin-bottom:6px;">For each content area, compare the bars on your report. Mark the shortest bars <b>Weak</b>, the longest <b>Strong</b>, and the rest <b>Middle</b>.</p>
       <div class="report-grid" id="rp-areas"></div>
       <div class="form-row">
         <button class="btn gold sm" id="rp-save">Save this report</button>
@@ -1117,7 +1099,6 @@
         <button class="btn ghost sm" id="history-clear" style="color:var(--bad);">Clear history</button>
         <input type="file" id="history-file-input" accept=".json,application/json" style="display:none;">
       </div>
-      <p class="note" style="margin-top:10px;">"Save history to file" downloads a small backup of your mock exam attempts. Use "Load history from file" to bring your record onto a different computer or browser — it merges with what's already here, so nothing gets overwritten or double-counted.</p>
     </div>
   </section>
 
@@ -1125,7 +1106,6 @@
   <section id="view-ref" class="view" aria-labelledby="ref-h">
     <header class="page-head">
       <h2 class="section-title" id="ref-h" tabindex="-1">Quick Reference</h2>
-      <p class="section-sub">The numbers, schedules, and deadlines in one place. Good for a last look before the exam.</p>
       <button class="btn ghost sm no-print" id="ref-print" style="margin-top:12px;">Print this page</button>
     </header>
     <div class="card">
@@ -1138,7 +1118,6 @@
     </div>
     <div class="card">
       <h2 class="section-title">Curative statutes, A–Z</h2>
-      <p class="section-sub">How long until each kind of defect is cured by statute.</p>
       <div class="search-bar no-print"><input type="search" id="ref-filter" class="field" placeholder="Filter, e.g. lien, deed, adverse" aria-label="Filter curative statutes" autocomplete="off" style="flex:1;"></div>
       <div class="table-scroll"><table class="ref-table">
         <thead><tr><th>Item</th><th>Statute</th><th>Period</th></tr></thead>
@@ -1151,7 +1130,6 @@
   <section id="view-search" class="view" aria-labelledby="search-h">
     <header class="page-head">
       <h2 class="section-title" id="search-h" tabindex="-1">Search everything</h2>
-      <p class="section-sub">Type any term — a law, a deadline, a concept — and see every flashcard and exam question that mentions it, with the answer and explanation right there.</p>
     </header>
     <div class="card">
       <div class="search-bar">
@@ -1168,7 +1146,6 @@
   <section id="view-admin" class="view" aria-labelledby="admin-h">
     <header class="page-head">
       <h2 class="section-title" id="admin-h" tabindex="-1">Manager view</h2>
-      <p class="section-sub" id="admin-sub">Everyone with an account, and how far along they are. Updates each time someone studies.</p>
     </header>
     <div class="card">
       <div class="admin-tools">
@@ -1180,7 +1157,6 @@
         <thead><tr><th>Name</th><th>Guided Path</th><th>Cards known</th><th>Best mock</th><th>Answered</th><th>Accuracy</th><th>Last active</th></tr></thead>
         <tbody id="admin-body"></tbody>
       </table></div>
-      <p class="note"><b>Guided Path</b> is steps finished out of 10. <b>Cards known</b> is the share of all flashcards marked "I know this". <b>Accuracy</b> covers every quiz and mock exam answer. <b>Last active</b> is the last time progress was saved.</p>
     </div>
   </section>
 
@@ -1204,7 +1180,6 @@
     <button type="button" class="modal-x" id="auth-x" aria-label="Close this pop-up"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
     <div class="modal-kicker" id="auth-kicker">Your account</div>
     <h2 id="auth-title">Sign in</h2>
-    <p class="auth-lead" id="auth-lead"></p>
     <div class="seg auth-seg" id="auth-seg" role="tablist" aria-label="Sign in or create an account">
       <button type="button" role="tab" data-mode="signin" class="active" aria-selected="true">Sign in</button>
       <button type="button" role="tab" data-mode="signup" aria-selected="false">Create account</button>
@@ -2626,8 +2601,8 @@ function stepSub(s, st){
     if(!s.started) return `Not started · about ${stepMinutes(s)} min`;
     return `${a.reviewed} of ${a.deckLen} cards reviewed · quiz ${a.best===null ? 'not taken yet' : 'best '+a.best+'%'}`;
   }
-  if(s.id==='mock-study') return st.studyAttempts.length ? `Best score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%` : `Not taken yet · about ${fmtMin(stepMinutes(s))}`;
-  return `${st.streak} of 2 passing timed runs in a row · each run is ${fmtMin(stepMinutes(s))}`;
+  if(s.id==='mock-study') return st.studyAttempts.length ? `Best score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%` : 'Not taken yet';
+  return `${st.streak} of 2 passing timed runs in a row`;
 }
 const WORDS = [
   ['Deed', 'The document that transfers ownership of a property.'],
@@ -2742,8 +2717,7 @@ function beginStep(id){
 }
 
 function introBody(){
-  return `<p>Every question on the exam fits somewhere in this story. Read it once, then move on to the content areas.</p>
-    <ol class="flow">
+  return `<ol class="flow">
       <li><b>Contract.</b> A buyer and seller agree on a sale, and a title company is asked to handle the title work.</li>
       <li><b>Search.</b> The title company pulls every recorded document on the property: deeds, liens, easements, releases.</li>
       <li><b>Examination.</b> An examiner reads those documents to decide who really owns the property and what claims are attached to it.</li>
@@ -2755,7 +2729,6 @@ function introBody(){
     </ol>
     <h3 style="font-size:1rem; color:var(--navy); margin:18px 0 0;">Words you'll hear a lot</h3>
     <div class="idea-list words">${WORDS.map(([t,d])=> `<div class="idea"><b>${escHtml(t)}</b><span>${escHtml(d)}</span></div>`).join('')}</div>
-    <p class="stat-line">The real exam has ${EXAM_TOTAL} questions across ${CATS.length} content areas, drawn from a much bigger pool, so every sitting is a little different. The next ${CATS.length} steps teach one area at a time. Items marked <b>★ Exam-style</b> are examples of how the real exam asks questions. They're likely topics, but not the whole test.</p>
     <div class="big-action">${state.introDone
       ? '<span class="done-line" style="margin:0;">'+ico('check')+' Done</span> <button class="btn ghost sm" data-act="intro-undo">Mark as not done</button>'
       : '<button class="btn gold huge" data-act="intro-done">I\'ve read this. On to Area 1'+ico('arrow-r')+'</button>'}</div>`;
@@ -2797,8 +2770,7 @@ function areaBody(s){
     body = `<div class="done-line">${ico('check')} You've finished this step. The cards and quiz stay open any time.</div>
       <div class="step-actions"><button class="btn ghost" data-act="cards" data-key="${key}">Open the flashcards</button><button class="btn ghost" data-act="quiz" data-key="${key}">Take the quiz again</button></div>`;
   }
-  const rule = s.done || stage !== 'lesson' ? '' : `<p class="stat-line">This step is complete when you've reviewed at least ${Math.round(AREA_DONE.cards*100)}% of the flashcards and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions.</p>`;
-  return chips + body + rule;
+  return chips + body;
 }
 function nextStepButton(s, st){
   const nx = st.steps[s.n];
@@ -2809,17 +2781,13 @@ function mockBody(s, st){
   const inProg = state.exam.active && !state.exam.submitted;
   const mode = s.id === 'mock-study' ? 'study' : 'sim';
   const label = inProg ? 'Resume your mock exam →' : (mode === 'study' ? 'Start a Study-mode exam →' : 'Start a Timed exam →');
-  const btn = `<div class="big-action"><button class="btn gold huge" data-act="mock-start" data-mode="${mode}">${btnLabel(label)}</button></div>`;
-  if(mode === 'study'){
-    return `<p>Take one full-length practice exam, untimed, with feedback after every question. This is where you get used to how the exam asks things.</p>
-      <p class="stat-line">Plan on about 75 to 90 minutes. You can stop and pick it up later; your place is saved on this device. Every question you miss is saved to <b>My Progress</b> so you can drill it afterward.</p>
-      ${btn}
-      ${s.done ? `<div class="done-line">${ico('check')} Done. Your best Study-mode score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%.</div>` : ''}`;
-  }
-  return `<p>The real-exam run: ${EXAM_TOTAL} questions in ${EXAM_SECONDS/60} minutes, with no feedback until the end. Score ${PASS_SCORE}%+ on two timed runs in a row.</p>
-    ${btn}
-    ${s.done ? '<div class="done-line">'+ico('check')+' Done. Two passing timed runs in a row. You\'re ready to schedule your exam.</div>'
-             : (st.sims.length ? `<p class="stat-line">Your last timed ${st.sims.length===1?'run':'runs'}: ${st.sims.slice(-2).map(a=>a.score+'%').join(', ')}.</p>` : '')}`;
+  const cap = mode === 'study' ? `${EXAM_TOTAL} questions · untimed` : `${EXAM_TOTAL} questions · ${EXAM_SECONDS/60} minutes · ${PASS_SCORE}% to pass, twice in a row`;
+  const last = mode === 'sim' && st.sims.length ? `<p class="stage-cap">Last timed ${st.sims.length===1?'run':'runs'}: ${st.sims.slice(-2).map(a=>a.score+'%').join(', ')}</p>` : '';
+  const done = !s.done ? '' : mode === 'study'
+    ? `<div class="done-line">${ico('check')} Done. Your best Study-mode score: ${Math.max(...st.studyAttempts.map(a=>a.score))}%.</div>`
+    : `<div class="done-line">${ico('check')} Done. Two passing timed runs in a row.</div>`;
+  return `<div class="big-action stage-go"><button class="btn gold huge" data-act="mock-start" data-mode="${mode}">${btnLabel(label)}</button>
+      <p class="stage-cap">${cap}</p>${last}</div>${done}`;
 }
 /* Before a practice exam starts, a pop-up says what to expect. */
 function preExamGuide(mode){
@@ -2881,8 +2849,7 @@ function renderPath(){
     .map(([n,l])=> `<div class="s"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
   const st = renderPathSteps();
   const pct = Math.round(100*st.doneCount/st.steps.length);
-  const totalMin = st.steps.reduce((sum, x)=> sum + stepMinutes(x), 0);
-  $('path-progress').innerHTML = `<div class="status-strip">${ringSvg(pct, 56, 6, pct+'%')}<div class="txt"><b>${st.doneCount} of ${st.steps.length}</b> steps complete<small>About ${Math.round(totalMin/60)} hours in total, best spread over several days</small></div></div>`;
+  $('path-progress').innerHTML = `<div class="status-strip">${ringSvg(pct, 56, 6, pct+'%')}<div class="txt"><b>${st.doneCount} of ${st.steps.length}</b> steps complete</div></div>`;
   animateRings();
   const n = st.next, started = st.doneCount > 0 || st.areas.some(a=> a.status!=='new');
   $('path-cta').innerHTML = btnLabel(!n ? 'You finished the path. See My Progress →' : (started ? 'Continue where you left off →' : 'Get started →'));
@@ -3101,7 +3068,6 @@ function centerActive(grid){
 }
 function renderCardTiles(){
   $('cards-tiles').classList.toggle('compact', !!state.cards.area);
-  $('cards-sub').style.display = state.cards.area ? 'none' : '';
   $('cards-h').parentNode.classList.toggle('compact', !!state.cards.area);
   keepFocus($('cards-tiles'), ()=>{
     $('cards-tiles').innerHTML = CATS.map(c=>{
@@ -3477,7 +3443,6 @@ function setQuizPhase(phase){
 }
 function renderQuizTiles(){
   $('quiz-tiles').classList.toggle('compact', !!state.qz.sel);
-  $('quiz-sub').style.display = state.qz.sel ? 'none' : '';
   $('quiz-h').parentNode.classList.toggle('compact', !!state.qz.sel);
   keepFocus($('quiz-tiles'), ()=>{
     const tile = (sel, num, name, extra, special) => {
@@ -4049,8 +4014,7 @@ function submitExam(){
   const oTotal = totalQ - pTotal, oCorrect = totalCorrect - pCorrect;
   const oPct = oTotal ? Math.round(100*oCorrect/oTotal) : 0;
   $('exam-result-split').innerHTML = pTotal && oTotal
-    ? `<b>Exam-style questions:</b> ${pCorrect} of ${pTotal} (${pPct}%) &nbsp;·&nbsp; <b>Other questions:</b> ${oCorrect} of ${oTotal} (${oPct}%)` +
-      (tracked ? `<div style="font-size:.8rem; color:var(--muted); margin-top:4px; max-width:620px; margin-left:auto; margin-right:auto;">Each attempt draws a different mix. The exam-style questions are examples of what to expect, not the whole test. For "am I ready?", look at both numbers and aim for ${PASS_SCORE}+ on each.</div>` : '')
+    ? `<b>Exam-style questions:</b> ${pCorrect} of ${pTotal} (${pPct}%) &nbsp;·&nbsp; <b>Other questions:</b> ${oCorrect} of ${oTotal} (${oPct}%)`
     : '';
   $('exam-result-chart').innerHTML = CATS.map(c=>{
     const d = perCat[c.key];
@@ -4275,8 +4239,6 @@ function renderTargetedButtons(){
   mb.disabled = n === 0;
   const fb = $('exam-start-focus');
   fb.textContent = latestReport() ? `Focus test from my score report (${FOCUS_TEST_SIZE} questions)` : 'Focus test — log a score report first';
-  $('exam-targeted-note').textContent =
-    'A missed question leaves your list after you answer it correctly twice. The focus test leans toward the areas you marked weak on your latest score report.';
 }
 $('exam-start-misses').addEventListener('click', startMisses);
 $('exam-start-focus').addEventListener('click', startFocus);
@@ -4290,7 +4252,7 @@ function renderReady(){
   const bestStudy = st.studyAttempts.length ? Math.max(...st.studyAttempts.map(a=> a.score)) : null;
   const checks = [
     { ok: st.areasDone === CATS.length,
-      text: `All ${CATS.length} content areas complete (${st.areasDone} of ${CATS.length} so far). An area is complete when you've reviewed most of its flashcards and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions.` },
+      text: `All ${CATS.length} content areas complete (${st.areasDone} of ${CATS.length} so far).` },
     { ok: st.studyAttempts.length > 0,
       text: bestStudy !== null ? `A Study-mode mock exam taken (your best: ${bestStudy}%).` : 'A Study-mode mock exam taken (none yet).' },
     { ok: st.streak >= 2,
@@ -4298,12 +4260,12 @@ function renderReady(){
   ];
   const met = checks.filter(c=> c.ok).length;
   const touched = st.areas.some(a=> a.status!=='new') || examHistory.length > 0 || state.introDone;
-  let cls = 'far', head = 'Just getting started', body = 'Follow the Guided Path, or study on your own. This page fills in as you go.';
-  if(met === checks.length){ cls = 'go'; head = 'You have met every checkpoint'; body = 'This is a good time to schedule your exam.'; }
-  else if(met >= 1 || touched){ cls = 'close'; head = `${met} of ${checks.length} checkpoints met`; body = 'Keep going — the unchecked items below are what is left.'; }
-  $('ready-card').innerHTML = `<div class="ready-banner ${cls}">${ringSvg(Math.round(100*met/checks.length), 48, 5, met + '/' + checks.length, met === checks.length ? 'pass' : '')}<div><b>${escHtml(head)}.</b> ${escHtml(body)}</div></div>
+  let cls = 'far', head = 'Just getting started';
+  if(met === checks.length){ cls = 'go'; head = 'You have met every checkpoint'; }
+  else if(met >= 1 || touched){ cls = 'close'; head = `${met} of ${checks.length} checkpoints met`; }
+  $('ready-card').innerHTML = `<div class="ready-banner ${cls}">${ringSvg(Math.round(100*met/checks.length), 48, 5, met + '/' + checks.length, met === checks.length ? 'pass' : '')}<div><b>${escHtml(head)}</b></div></div>
     <ul class="check-list">${checks.map(c=> `<li class="${c.ok?'ok':''}"><span class="ico" aria-hidden="true">${c.ok?ico('check'):'·'}</span><span><span class="sr-only">${c.ok?'Met: ':'Not yet: '}</span>${escHtml(c.text)}</span></li>`).join('')}</ul>
-    <p class="stat-line">These are study checkpoints, not a prediction of your score on the real exam.</p>`;
+`;
   animateRings();
 }
 function renderAreaTable(){
@@ -4351,9 +4313,9 @@ $('view-progress').addEventListener('click', e=>{
 function renderMissesCard(){
   const n = missCount();
   $('misses-card').innerHTML = `<h2 class="section-title">My misses</h2>` + (n
-    ? `<p class="section-sub">${plural(n,'question')} waiting. A question leaves this list after you answer it correctly twice, in any part of the site.</p>
+    ? `<p class="section-sub">${plural(n,'question')} waiting.</p>
        <button class="btn gold" id="misses-go">Review my misses</button>`
-    : `<p class="section-sub">No missed questions right now. Questions you get wrong in quizzes and mock exams will collect here so you can drill them.</p>`);
+    : `<p class="section-sub">No missed questions right now.</p>`);
   const b = $('misses-go');
   if(b) b.addEventListener('click', ()=>{ showView('exam'); startMisses(); });
 }
@@ -4379,8 +4341,7 @@ function renderReportCard(){
        ${state.reports.map(r=>{
          const weak = CATS.filter(c=> r.areas[c.key]==='weak').map(c=> AREA_SHORT[c.key]);
          return `<tr><td>${escHtml(r.date)}</td><td>${r.overall}</td><td>${weak.length ? escHtml(weak.join(', ')) : '—'}</td><td><button class="btn ghost sm" data-del-report="${escHtml(r.id)}">Delete</button></td></tr>`;
-       }).join('')}</tbody></table></div>
-       <p class="stat-line">Your most recent report drives the focus test on the Mock Exam tab.</p>`
+       }).join('')}</tbody></table></div>`
     : '';
 }
 function saveReport(){
@@ -5263,7 +5224,7 @@ function renderStats(){
   const best = examHistory.length ? Math.max(...examHistory.map(a=> a.score)) : null;
   const items = [
     [answered, 'Questions answered', ''],
-    [acc === null ? '—' : acc + '%', 'Overall accuracy', acc === null ? 'Answer a few to see it' : ''],
+    [acc === null ? '—' : acc + '%', 'Overall accuracy', ''],
     [days, days === 1 ? 'Day studied' : 'Days studied', ''],
     [examHistory.length, examHistory.length === 1 ? 'Mock exam' : 'Mock exams', best !== null ? 'Best ' + best + '%' : '']
   ];
@@ -5396,7 +5357,7 @@ function gateFallback(){
 function setAuthMode(mode){
   authMode = mode;
   const c = Object.assign({}, AUTH_COPY[mode], LOCAL() ? (AUTH_LOCAL[mode] || {}) : {});
-  $('auth-title').textContent = c.title; $('auth-lead').textContent = c.lead; $('auth-submit').textContent = c.submit;
+  $('auth-title').textContent = c.title; $('auth-submit').textContent = c.submit;
   const seg = $('auth-seg');
   seg.hidden = !(mode === 'signin' || mode === 'signup');
   seg.querySelectorAll('button').forEach(b=>{ const on = b.dataset.mode === mode; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
@@ -5639,7 +5600,6 @@ $('exam-jump').open = window.innerWidth > 600;
 restoreExam();
 renderPath();
 cloudInit();
-if(LOCAL()) $('admin-sub').textContent = 'Everyone who has studied on this computer, and how far along they are. Updates each time someone studies.';
 /* First visit. With accounts on, the account pop-up comes first and the welcome follows once
    they're in. Otherwise a big welcome pop-up; people who already have progress skip it. */
 let guestChosen = false;
