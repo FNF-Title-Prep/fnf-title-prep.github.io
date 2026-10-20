@@ -162,6 +162,8 @@
   button.btn.on{ background:var(--warn-bg); color:#6b4a0a; border-color:var(--warn-line); }
   button.btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
   .big-action{ display:flex; flex-direction:column; align-items:center; gap:var(--s3); max-width:420px; margin:var(--s5) auto 0; }
+  .big-action.stage-go{ gap:var(--s2); margin:var(--s6) auto var(--s3); }
+  .stage-cap{ margin:0; font-size:.9rem; color:var(--muted); text-align:center; }
   .next-actions{ display:flex; flex-wrap:wrap; justify-content:center; gap:var(--s3); margin-top:var(--s4); }
   .step-actions{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:var(--s3); margin-top:var(--s4); }
   .next-step-row{ max-width:420px; margin:var(--s4) auto 0; }
@@ -558,6 +560,10 @@
   button.link{ padding:6px 8px; background:none; border:0; border-radius:6px; color:var(--navy); font-size:.86rem; font-weight:500; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
   button.link:hover{ background:var(--navy-tint); }
   button.link[hidden]{ display:none; }
+  .auth-foot{ margin-top:var(--s4); padding-top:var(--s3); border-top:1px solid var(--line); text-align:center; }
+  .auth-foot[hidden]{ display:none; }
+  button.link.quiet{ color:var(--muted); font-size:.8rem; font-weight:500; }
+  button.link.quiet:hover{ color:var(--ink); background:none; }
   .modal-actions .btn[hidden]{ display:none; }
   button.btn[disabled]{ opacity:.65; cursor:default; transform:none; }
   button.btn.busy::before{ content:''; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
@@ -777,7 +783,7 @@
     <div class="card hero-card">
       <div class="kicker">Guided Path</div>
       <h2 class="section-title" id="path-h" tabindex="-1">Pass the Colorado title exam.</h2>
-      <p class="section-sub">A guided course for new hires: the big picture, seven short lessons with flashcards and quizzes, then full practice exams. No experience needed. <span id="hero-save">Your progress saves on this device.</span></p>
+      <p class="section-sub">7 short lessons. Each section is a category from the test.</p>
       <div class="big-action" style="margin-top:20px;"><button class="btn big" id="path-cta">Get started</button></div>
       <div class="hero-sub" id="path-cta-sub"></div>
       <div id="path-progress"></div>
@@ -1190,7 +1196,7 @@
     </div>
     <form id="auth-form" novalidate>
       <div class="field" id="auth-f-name"><label for="auth-name">Your name</label><input id="auth-name" type="text" autocomplete="name" maxlength="60" placeholder="First and last name"></div>
-      <div class="field" id="auth-f-email"><label for="auth-email">Work email</label><input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120"></div>
+      <div class="field" id="auth-f-email"><label for="auth-email">Work email</label><input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="yourname@fnf.com"></div>
       <div class="field" id="auth-f-pass"><label for="auth-pass" id="auth-pass-label">Password</label><div class="pw"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="200"><button type="button" class="pw-toggle" id="auth-pw-toggle" aria-pressed="false" aria-label="Show password">Show</button></div><div class="field-hint" id="auth-pass-hint">At least 8 characters.</div></div>
       <div class="auth-error" id="auth-error" role="alert" hidden></div>
       <div class="auth-ok" id="auth-ok" role="status" hidden></div>
@@ -1201,6 +1207,9 @@
       <div class="auth-links">
         <button type="button" class="link" id="auth-forgot">Forgot your password?</button>
         <button type="button" class="link" id="auth-back" hidden>Back to sign in</button>
+      </div>
+      <div class="auth-foot" id="auth-foot" hidden>
+        <button type="button" class="link quiet" id="auth-noacct">I don't want to track my progress (no account)</button>
       </div>
     </form>
   </div>
@@ -2681,7 +2690,7 @@ function showWelcome(){
         '<b>One short lesson for each of the 7 content areas.</b> Read it, study the flashcards, then take a quiz.',
         '<b>Full practice exams.</b> First with answers after each question, then timed like the real thing.'
       ]) +
-      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.session ? (LOCAL() ? 'Your progress saves under your account on this computer.' : 'Your progress saves to your account, so you can pick up on any computer or phone.') : (Cloud.on ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.')} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
+      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.session ? (LOCAL() ? 'Your progress saves under your account on this computer.' : 'Your progress saves to your account, so you can pick up on any computer or phone.') : ((Cloud.on && !LOCAL()) ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.')} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
     primary:['Get started →', ()=> (Cloud.on && !Cloud.session) ? openAuth('signup', { then: ()=> beginStep('intro') }) : beginStep('intro')],
     secondary:["I'll look around first", null]
   });
@@ -2764,23 +2773,16 @@ function areaBody(s){
       <div class="watch"><b>Watch out for</b><ul>${info.watch.map(w=> `<li>${escHtml(w)}</li>`).join('')}</ul></div>
       <div class="big-action"><button class="btn gold huge" data-act="lesson-done" data-key="${key}">${btnLabel(lessonDone ? 'Go on to the flashcards →' : "I've read the lesson. Next: the flashcards →")}</button></div>`;
   } else if(stage === 'cards'){
-    body = `<div class="stage-card"><h3>Study the flashcards</h3>
-        <p>Flip each card, then tap <b>I know this</b> or <b>Review again</b>. The basic cards come first, then the ★ exam-style ones. Go through at least ${Math.round(AREA_DONE.cards*100)}% of the deck.</p>
-        <p class="stat-line"><b>${a.reviewed} of ${a.deckLen}</b> cards reviewed so far.</p></div>
-      <div class="big-action"><button class="btn gold huge" data-act="cards" data-key="${key}">${btnLabel(a.reviewed ? 'Continue the flashcards →' : 'Open the flashcards →')}</button>
-        ${key==='colaw' ? '<button class="btn ghost" data-act="handout" data-key="colaw">Class handout cards (statutes, rates, curative table)</button>' : ''}</div>`;
+    body = `<div class="big-action stage-go"><button class="btn gold huge" data-act="cards" data-key="${key}">${btnLabel('Open the flashcards →')}</button>
+        <p class="stage-cap">Review ${escHtml(AREA_SHORT[key])} flashcards</p></div>`;
   } else if(stage === 'quiz'){
-    const pool = quizPool(key, 'mixed').length;
-    body = `<div class="stage-card"><h3>Take the quiz</h3>
-        <p>10 questions, mostly exam-style, picked from ${pool} in this area. After every answer you'll see why it's right. Score ${AREA_DONE.quiz}% or more to finish this step.</p>
-        <p class="stat-line">${a.best === null ? "You haven't taken it yet." : `Your best so far: <b>${a.best}%</b>.`}</p></div>
-      <div class="big-action"><button class="btn gold huge" data-act="quiz" data-key="${key}">${btnLabel(a.best === null ? 'Start the quiz →' : 'Try the quiz again →')}</button>
-        <button class="btn ghost" data-act="cards" data-key="${key}">Review the flashcards first</button></div>`;
+    body = `<div class="big-action stage-go"><button class="btn gold huge" data-act="quiz" data-key="${key}">${btnLabel('Start the quiz →')}</button>
+        <p class="stage-cap">10 questions on ${escHtml(AREA_SHORT[key])} · ${AREA_DONE.quiz}% to pass</p></div>`;
   } else {
     body = `<div class="done-line">${ico('check')} You've finished this step. The cards and quiz stay open any time.</div>
       <div class="step-actions"><button class="btn ghost" data-act="cards" data-key="${key}">Open the flashcards</button><button class="btn ghost" data-act="quiz" data-key="${key}">Take the quiz again</button></div>`;
   }
-  const rule = s.done ? '' : `<p class="stat-line">This step is complete when you've reviewed at least ${Math.round(AREA_DONE.cards*100)}% of the flashcards and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions.</p>`;
+  const rule = s.done || stage !== 'lesson' ? '' : `<p class="stat-line">This step is complete when you've reviewed at least ${Math.round(AREA_DONE.cards*100)}% of the flashcards and scored ${AREA_DONE.quiz}%+ on a quiz of 10 or more questions.</p>`;
   return chips + body + rule;
 }
 function nextStepButton(s, st){
@@ -5279,6 +5281,7 @@ function openAuth(mode, o){
   $('auth-kicker').textContent = authGate ? 'Welcome' : 'Your account';
   $('auth-alt').hidden = !authThen || hardGate();
   $('auth-x').hidden = hardGate();
+  $('auth-foot').hidden = !authGate;
   if($('auth').hidden) authReturnFocus = document.activeElement;
   $('auth').hidden = false;
   document.body.classList.add('modal-open');
@@ -5292,6 +5295,7 @@ function closeAuth(){
   $('auth').hidden = true;
   authGate = false;
   $('auth-x').hidden = false;
+  $('auth-foot').hidden = true;
   document.body.classList.remove('modal-open');
   setInert(false);
   $('auth-form').reset();
@@ -5312,8 +5316,9 @@ function openGate(){
   openAuth('signup', { gate:true, then: afterGate });
   cloudPing();
 }
+function setGuest(){ try { localStorage.setItem(GUEST_KEY, '1'); } catch(e){ /* fine */ } }
 function afterGate(){
-  if(!Cloud.session){ try { localStorage.setItem(GUEST_KEY, '1'); } catch(e){ /* fine */ } }
+  if(!Cloud.session && !Cloud.outage) setGuest();
   if(!state.welcomed){
     state.welcomed = true;
     persist();
@@ -5331,6 +5336,7 @@ function gateFallback(){
   authMsg('error', "The account service can't be reached right now. You can continue without an account; your work stays on this device until you sign in later.");
   $('auth-alt').hidden = false;
   $('auth-x').hidden = false;
+  $('auth-foot').hidden = true;
 }
 function setAuthMode(mode){
   authMode = mode;
@@ -5377,6 +5383,14 @@ $('auth-seg').addEventListener('click', e=>{ const b = e.target.closest('button[
 $('auth-forgot').addEventListener('click', ()=>{ setAuthMode('forgot'); $('auth-email').focus(); });
 $('auth-back').addEventListener('click', ()=>{ if(authMode === 'manager'){ closeAuth(); return; } setAuthMode('signin'); $('auth-email').focus(); });
 $('auth-alt').addEventListener('click', dismissAuth);
+/* The small link at the bottom of the first screen: study without an account on this device. */
+$('auth-noacct').addEventListener('click', ()=>{
+  if($('auth-submit').disabled) return;
+  authThen = null;
+  setGuest();
+  closeAuth();
+  afterGate();
+});
 $('auth-x').addEventListener('click', dismissAuth);
 $('auth').addEventListener('click', e=>{ if(e.target === $('auth')) dismissAuth(); });
 $('auth').addEventListener('keydown', e=>{
@@ -5570,13 +5584,12 @@ $('exam-jump').open = window.innerWidth > 600;
 restoreExam();
 renderPath();
 cloudInit();
-if(Cloud.on) $('hero-save').textContent = LOCAL() ? 'Sign in and your progress is saved under your name.' : 'Sign in and your progress follows you to any device.';
 if(LOCAL()) $('admin-sub').textContent = 'Everyone who has studied on this computer, and how far along they are. Updates each time someone studies.';
 /* First visit. With accounts on, the account pop-up comes first and the welcome follows once
    they're in. Otherwise a big welcome pop-up; people who already have progress skip it. */
 let guestChosen = false;
 try { guestChosen = localStorage.getItem(GUEST_KEY) === '1'; } catch(e){ /* fine */ }
-if(Cloud.on && !Cloud.session && (CLOUD.required !== false || !guestChosen)){
+if(Cloud.on && !Cloud.session && !guestChosen){
   if($('auth').hidden) openGate();
 } else if(!state.welcomed && !Cloud.session){
   const hasProgress = state.introDone || examHistory.length > 0 || CATS.some(c=> areaProgress(c.key).status !== 'new');
