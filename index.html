@@ -1134,7 +1134,7 @@
   <section id="view-admin" class="view" aria-labelledby="admin-h">
     <header class="page-head">
       <h2 class="section-title" id="admin-h" tabindex="-1">Manager view</h2>
-      <p class="section-sub">Everyone with an account, and how far along they are. Updates each time someone studies.</p>
+      <p class="section-sub" id="admin-sub">Everyone with an account, and how far along they are. Updates each time someone studies.</p>
     </header>
     <div class="card">
       <div class="admin-tools">
@@ -1178,7 +1178,7 @@
     <form id="auth-form" novalidate>
       <div class="field" id="auth-f-name"><label for="auth-name">Your name</label><input id="auth-name" type="text" autocomplete="name" maxlength="60" placeholder="First and last name"></div>
       <div class="field" id="auth-f-email"><label for="auth-email">Work email</label><input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120"></div>
-      <div class="field" id="auth-f-pass"><label for="auth-pass">Password</label><div class="pw"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="200"><button type="button" class="pw-toggle" id="auth-pw-toggle" aria-pressed="false" aria-label="Show password">Show</button></div><div class="field-hint" id="auth-pass-hint">At least 8 characters.</div></div>
+      <div class="field" id="auth-f-pass"><label for="auth-pass" id="auth-pass-label">Password</label><div class="pw"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="200"><button type="button" class="pw-toggle" id="auth-pw-toggle" aria-pressed="false" aria-label="Show password">Show</button></div><div class="field-hint" id="auth-pass-hint">At least 8 characters.</div></div>
       <div class="auth-error" id="auth-error" role="alert" hidden></div>
       <div class="auth-ok" id="auth-ok" role="status" hidden></div>
       <div class="modal-actions">
@@ -1215,11 +1215,14 @@ const PRACTICE_SEAT_SHARE = 0.70;
 /* An area counts as "complete" once this much of its deck is reviewed AND
    the area check has been scored at or above the bar. */
 const AREA_DONE = { cards:0.8, quiz:80 };
-/* Accounts (optional). Fill in the Supabase project URL and anon key to turn on sign-in and
-   progress that follows a person to any device (see docs/ACCOUNTS.md). Leave both empty and
-   the site saves to this device only. With `required`, the first screen on every new device
-   is the account pop-up; set it to false to allow "Continue without an account". */
-const CLOUD = { url:'', anonKey:'', required:true };
+/* Accounts. url:'local' keeps every account inside the browser it was created in (no server:
+   a shared training computer gets one account per person). A Supabase project URL + anon key
+   instead makes progress follow people to any device (see docs/ACCOUNTS.md). url:'' turns
+   accounts off. `required`: the first screen on a new device is the account pop-up (false adds
+   "Continue without an account"). `domains`: work-email domains allowed to sign up (empty =
+   any). `managerCode`: typed once in the account menu to unlock the Manager view (local mode). */
+const CLOUD = { url:'local', anonKey:'', required:true, domains:[], managerCode:'title-manager' };
+const LOCAL = () => CLOUD.url === 'local';
 /* Targeted practice sizes. */
 const MISSES_SESSION_MAX = 30;
 const FOCUS_TEST_SIZE = 40;
@@ -2665,7 +2668,7 @@ function showWelcome(){
         '<b>One short lesson for each of the 7 content areas.</b> Read it, study the flashcards, then take a quiz.',
         '<b>Full practice exams.</b> First with answers after each question, then timed like the real thing.'
       ]) +
-      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.session ? 'Your progress saves to your account, so you can pick up on any computer or phone.' : (Cloud.on ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.')} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
+      `<p class="gm-note">In total, about ${total} hours. Spread it over several days. ${Cloud.session ? (LOCAL() ? 'Your progress saves under your account on this computer.' : 'Your progress saves to your account, so you can pick up on any computer or phone.') : (Cloud.on ? 'Create an account and your progress follows you to any computer or phone.' : 'Your progress saves on this device.')} Want to study on your own instead? Flashcards, Quizzes and the Mock Exam are always open.</p>`,
     primary:['Get started →', ()=> (Cloud.on && !Cloud.session) ? openAuth('signup', { then: ()=> beginStep('intro') }) : beginStep('intro')],
     secondary:["I'll look around first", null]
   });
@@ -4677,7 +4680,7 @@ document.addEventListener('keydown', e=>{
    ========================================================= */
 const AUTH_KEY = 'coTitleAuth_v1';
 const Cloud = {
-  on: !!(CLOUD.url && CLOUD.anonKey),
+  on: !!(CLOUD.url && (CLOUD.url === 'local' || CLOUD.anonKey)),
   session: null,      // {access_token, refresh_token, expires_at (ms), user:{id,email}}
   profile: null,      // {id, email, display_name, role}
   dirty:false, timer:null, pushing:false, syncedAt:0, pulledAt:0, failed:false, quiet:false, outage:false
@@ -4727,6 +4730,7 @@ function cloudMessage(j, status){
 
 async function cloudFetch(path, o){
   o = o || {};
+  if(LOCAL()) return localApi(path, o);
   const headers = Object.assign({ 'apikey': CLOUD.anonKey, 'Content-Type': 'application/json' }, o.headers || {});
   if(o.auth){
     const tok = await cloudToken();
@@ -4779,6 +4783,96 @@ function cloudDropSession(msg){
   cloudStore(null); Cloud.profile = null;
   renderAccountUI();
   if(msg) toast(msg, 6000);
+}
+
+/* ---- Local accounts: the same calls as the cloud, answered from this browser's storage. ---- */
+const LOCAL_KEY = 'coTitleLocalAccounts_v1';
+function localDb(){
+  try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); if(d && d.v === 1 && d.users && d.progress && d.sessions) return d; } catch(e){ /* fresh */ }
+  return { v:1, users:{}, progress:{}, sessions:{} };
+}
+function localSave(db){ try { localStorage.setItem(LOCAL_KEY, JSON.stringify(db)); } catch(e){ /* storage full or blocked */ } }
+async function localHash(pw){
+  try {
+    if(window.crypto && crypto.subtle){
+      const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('co-title:' + pw));
+      return [...new Uint8Array(b)].map(x=> x.toString(16).padStart(2, '0')).join('');
+    }
+  } catch(e){ /* fall through */ }
+  return 'h' + hashStr('co-title:' + pw);
+}
+const localId = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+function localAllowed(email){
+  const d = (CLOUD.domains || []).map(x=> String(x).toLowerCase().trim()).filter(Boolean);
+  if(!d.length) return true;
+  const e = String(email || '').toLowerCase().trim();
+  return d.some(x=> x.includes('@') ? x === e : e.endsWith('@' + x));
+}
+function localSession(db, u){ const tok = localId(); db.sessions[tok] = u.id; return { access_token: tok, refresh_token: tok, expires_in: 3153600000, user:{ id:u.id, email:u.email } }; }
+function localErr(status, code, msg){ throw cloudError(cloudMessage({ error_code: code, msg }, status), status, null); }
+async function localApi(path, o){
+  const db = localDb(), body = o.body || {}, method = o.method || 'GET';
+  const url = new URL(path, 'http://local'), p = url.pathname;
+  const who = ()=>{
+    const s = Cloud.session, id = s && db.sessions[s.access_token];
+    const u = id && Object.values(db.users).find(x=> x.id === id);
+    if(!u) localErr(401, 'session_not_found', 'Session not found');
+    return u;
+  };
+  const emailOf = v => String(v || '').toLowerCase().trim();
+  if(p === '/rest/v1/rpc/signup_allowed') return localAllowed(body.email);
+  if(p === '/auth/v1/signup'){
+    const email = emailOf(body.email);
+    if(db.users[email]) localErr(422, 'user_already_exists', 'User already registered');
+    if(!localAllowed(email)) localErr(422, 'signup_not_allowed', 'signup not allowed');
+    const u = { id: localId(), email, name: String((body.data && body.data.display_name) || '').trim().slice(0, 60), hash: await localHash(body.password || ''), role: 'learner', created_at: new Date().toISOString() };
+    db.users[email] = u;
+    const s = localSession(db, u); localSave(db); return s;
+  }
+  if(p === '/auth/v1/token'){
+    const grant = url.searchParams.get('grant_type');
+    if(grant === 'password'){
+      const u = db.users[emailOf(body.email)];
+      if(!u) localErr(400, 'user_not_found', 'No account with that email on this computer. Create one here, or use the computer where you signed up');
+      if(u.hash !== await localHash(body.password || '')) localErr(400, 'invalid_credentials', 'Invalid login credentials');
+      const s = localSession(db, u); localSave(db); return s;
+    }
+    if(grant === 'refresh_token'){
+      const id = db.sessions[body.refresh_token], u = id && Object.values(db.users).find(x=> x.id === id);
+      if(!u) localErr(400, 'refresh_token_not_found', 'Invalid Refresh Token');
+      return { access_token: body.refresh_token, refresh_token: body.refresh_token, expires_in: 3153600000, user:{ id:u.id, email:u.email } };
+    }
+  }
+  if(p === '/auth/v1/recover'){            // no email on this computer: the new password is set right here
+    const u = db.users[emailOf(body.email)];
+    if(!u) localErr(400, 'user_not_found', 'No account with that email on this computer');
+    u.hash = await localHash(body.password || '');
+    const s = localSession(db, u); localSave(db); return s;
+  }
+  if(p === '/auth/v1/user'){
+    const u = who();
+    if(method === 'PUT'){ if(body.password !== undefined) u.hash = await localHash(body.password); localSave(db); }
+    return { id:u.id, email:u.email };
+  }
+  if(p === '/auth/v1/logout'){ const s = Cloud.session; if(s) delete db.sessions[s.access_token]; localSave(db); return null; }
+  if(p === '/rest/v1/rpc/manager_unlock'){
+    const u = who();
+    if(!CLOUD.managerCode || String(body.code || '') !== CLOUD.managerCode) localErr(403, 'wrong_code', "That code isn't right");
+    u.role = 'admin'; localSave(db); return true;
+  }
+  const u = who(), isAdmin = u.role === 'admin';
+  if(p === '/rest/v1/profiles'){
+    const f = /^eq\.(.+)$/.exec(url.searchParams.get('id') || '');
+    return Object.values(db.users).filter(x=> (x.id === u.id || isAdmin) && (!f || x.id === f[1])).map(x=>{
+      const pr = db.progress[x.id];
+      return { id:x.id, email:x.email, display_name:x.name, role:x.role, created_at:x.created_at, progress: pr ? { stats:pr.stats, updated_at:pr.updated_at } : null };
+    });
+  }
+  if(p === '/rest/v1/progress'){
+    if(method === 'GET'){ const pr = db.progress[u.id]; return pr ? [{ data:pr.data, updated_at:pr.updated_at }] : []; }
+    db.progress[u.id] = { data: body.data, stats: body.stats, updated_at: new Date().toISOString() }; localSave(db); return null;
+  }
+  localErr(404, 'not_found', 'not found');
 }
 
 /* ---- Sign up / sign in / reset ---- */
@@ -4951,7 +5045,8 @@ function confirmSignOut(){
   showGuide({
     kicker:'Sign out',
     title:'Sign out of your account?',
-    html:'<p>Your progress is saved to your account. Signing out clears this device so the next person starts fresh. Sign back in any time to pick up where you left off.</p>',
+    html: LOCAL() ? '<p>Your progress is saved under your account on this computer. Signing out takes it off the screen so the next person starts fresh. Sign back in any time to pick up where you left off.</p>'
+                  : '<p>Your progress is saved to your account. Signing out clears this device so the next person starts fresh. Sign back in any time to pick up where you left off.</p>',
     primary:['Sign out', ()=> cloudSignOut()],
     secondary:['Cancel', null]
   });
@@ -5047,7 +5142,7 @@ function renderAccountUI(){
   $('acct-avatar').textContent = signed ? initials(acctName(), Cloud.session.user.email) : '';
   $('acct-name').textContent = signed ? firstName() : 'Sign in';
   btn.setAttribute('aria-label', signed ? 'Account menu, ' + acctName() : 'Sign in or create an account');
-  $('acct-admin').hidden = !(signed && Cloud.profile && Cloud.profile.role === 'admin');
+  $('acct-admin').hidden = !(signed && ((Cloud.profile && Cloud.profile.role === 'admin') || (LOCAL() && !!CLOUD.managerCode)));
   if(signed) $('acct-who').innerHTML = `<b>${escHtml(acctName())}</b><span>${escHtml(Cloud.session.user.email)}</span>`;
   else closeAcctMenu();
   if($('view-progress').classList.contains('active')) renderAccountCard();
@@ -5060,7 +5155,7 @@ function renderAccountCard(){
   el.hidden = false;
   if(!Cloud.session){
     el.innerHTML = `<div class="acct-strip"><div class="avatar lg guest" aria-hidden="true">${ico('users')}</div>
-      <div class="acct-text"><b>Save your progress to an account</b><span>Use your work email, and your progress and stats follow you to any computer or phone.</span></div>
+      <div class="acct-text"><b>Save your progress to an account</b><span>${LOCAL() ? 'Use your work email, and your progress and stats are kept under your name on this computer.' : 'Use your work email, and your progress and stats follow you to any computer or phone.'}</span></div>
       <div class="acct-actions"><button class="btn sm" data-auth="signup">Create account</button><button class="btn ghost sm" data-auth="signin">Sign in</button></div></div>`;
     return;
   }
@@ -5112,7 +5207,7 @@ $('acct-menu').addEventListener('click', e=>{
   if(!b) return;
   closeAcctMenu();
   if(b.dataset.act === 'progress') showView('progress');
-  else if(b.dataset.act === 'admin') showView('admin');
+  else if(b.dataset.act === 'admin'){ if(Cloud.profile && Cloud.profile.role === 'admin') showView('admin'); else openAuth('manager'); }
   else if(b.dataset.act === 'signout') confirmSignOut();
 });
 $('acct').addEventListener('keydown', e=>{
@@ -5131,7 +5226,14 @@ const AUTH_COPY = {
   signin:{ title:'Sign in',             lead:'Pick up right where you left off, on any device.',                                          submit:'Sign in' },
   signup:{ title:'Create your account', lead:'Use your work email. Your progress and stats will follow you to any computer or phone.',    submit:'Create account' },
   forgot:{ title:'Reset your password', lead:"Enter your email and we'll send you a link to set a new password.",                         submit:'Send the link' },
-  reset: { title:'Set a new password',  lead:'Choose a new password for your account.',                                                   submit:'Save new password' }
+  reset: { title:'Set a new password',  lead:'Choose a new password for your account.',                                                   submit:'Save new password' },
+  manager:{ title:'Manager view',       lead:'Enter the manager code to see everyone who has studied on this computer.',                   submit:'Open the Manager view' }
+};
+/* Wording differs a little when accounts live on this computer. */
+const AUTH_LOCAL = {
+  signin:{ lead:'Pick up right where you left off.' },
+  signup:{ lead:'Use your work email. Your progress and stats are saved under your name on this computer.' },
+  forgot:{ title:'Reset your password', lead:'No email needed on this computer: enter your work email and a new password.', submit:'Save and sign in' }
 };
 let authMode = 'signin', authThen = null, authReturnFocus = null, authGate = false;
 const GUEST_KEY = 'coTitleGuest_v1';
@@ -5201,18 +5303,20 @@ function gateFallback(){
 }
 function setAuthMode(mode){
   authMode = mode;
-  const c = AUTH_COPY[mode];
+  const c = Object.assign({}, AUTH_COPY[mode], LOCAL() ? (AUTH_LOCAL[mode] || {}) : {});
   $('auth-title').textContent = c.title; $('auth-lead').textContent = c.lead; $('auth-submit').textContent = c.submit;
   const seg = $('auth-seg');
   seg.hidden = !(mode === 'signin' || mode === 'signup');
   seg.querySelectorAll('button').forEach(b=>{ const on = b.dataset.mode === mode; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  const localReset = mode === 'forgot' && LOCAL();
   $('auth-f-name').hidden = mode !== 'signup';
-  $('auth-f-email').hidden = mode === 'reset';
-  $('auth-f-pass').hidden = mode === 'forgot';
-  $('auth-pass').setAttribute('autocomplete', mode === 'signin' ? 'current-password' : 'new-password');
-  $('auth-pass-hint').hidden = mode === 'signin';
+  $('auth-f-email').hidden = mode === 'reset' || mode === 'manager';
+  $('auth-f-pass').hidden = mode === 'forgot' && !localReset;
+  $('auth-pass-label').textContent = mode === 'manager' ? 'Manager code' : ((mode === 'reset' || localReset) ? 'New password' : 'Password');
+  $('auth-pass').setAttribute('autocomplete', mode === 'signin' ? 'current-password' : (mode === 'manager' ? 'off' : 'new-password'));
+  $('auth-pass-hint').hidden = mode === 'signin' || mode === 'manager';
   $('auth-forgot').hidden = mode !== 'signin';
-  $('auth-back').hidden = mode !== 'forgot';
+  $('auth-back').hidden = !(mode === 'forgot' || mode === 'manager');
   authMsg('error', ''); authMsg('ok', '');
 }
 function authMsg(kind, text){ const el = $(kind === 'ok' ? 'auth-ok' : 'auth-error'); el.textContent = text || ''; el.hidden = !text; }
@@ -5240,7 +5344,7 @@ function togglePw(){
 $('auth-pw-toggle').addEventListener('click', ()=>{ togglePw(); $('auth-pass').focus(); });
 $('auth-seg').addEventListener('click', e=>{ const b = e.target.closest('button[data-mode]'); if(b && b.dataset.mode !== authMode){ setAuthMode(b.dataset.mode); (b.dataset.mode === 'signup' ? $('auth-name') : $('auth-email')).focus(); } });
 $('auth-forgot').addEventListener('click', ()=>{ setAuthMode('forgot'); $('auth-email').focus(); });
-$('auth-back').addEventListener('click', ()=>{ setAuthMode('signin'); $('auth-email').focus(); });
+$('auth-back').addEventListener('click', ()=>{ if(authMode === 'manager'){ closeAuth(); return; } setAuthMode('signin'); $('auth-email').focus(); });
 $('auth-alt').addEventListener('click', dismissAuth);
 $('auth-x').addEventListener('click', dismissAuth);
 $('auth').addEventListener('click', e=>{ if(e.target === $('auth')) dismissAuth(); });
@@ -5278,6 +5382,19 @@ $('auth-form').addEventListener('submit', async e=>{
       setAuthBusy(true, 'Signing in…');
       await cloudSignIn(email, pw);
       authDone('Welcome back, ' + firstName() + '.', { ask:true });
+    } else if(authMode === 'forgot' && LOCAL()){
+      if(!emailOk) return authFail('Enter a valid email address.', 'auth-email');
+      if(pw.length < 8) return authFail('Use at least 8 characters for your new password.', 'auth-pass');
+      setAuthBusy(true, 'Saving…');
+      const j = await cloudFetch('/auth/v1/recover', { method:'POST', body:{ email, password: pw } });
+      cloudStore(sessionFrom(j)); await cloudLoadProfile();
+      authDone('Password updated. You are signed in.', { ask:true });
+    } else if(authMode === 'manager'){
+      if(!pw) return authFail('Enter the manager code.', 'auth-pass');
+      setAuthBusy(true, 'Checking…');
+      await cloudFetch('/rest/v1/rpc/manager_unlock', { method:'POST', auth:true, body:{ code: pw } });
+      await cloudLoadProfile(); renderAccountUI();
+      closeAuth(); toast('Manager view unlocked on this computer.'); showView('admin');
     } else if(authMode === 'forgot'){
       if(!emailOk) return authFail('Enter a valid email address.', 'auth-email');
       setAuthBusy(true, 'Sending…');
@@ -5367,7 +5484,8 @@ $('exam-jump').open = window.innerWidth > 600;
 restoreExam();
 renderPath();
 cloudInit();
-if(Cloud.on) $('hero-save').textContent = 'Sign in and your progress follows you to any device.';
+if(Cloud.on) $('hero-save').textContent = LOCAL() ? 'Sign in and your progress is saved under your name.' : 'Sign in and your progress follows you to any device.';
+if(LOCAL()) $('admin-sub').textContent = 'Everyone who has studied on this computer, and how far along they are. Updates each time someone studies.';
 /* First visit. With accounts on, the account pop-up comes first and the welcome follows once
    they're in. Otherwise a big welcome pop-up; people who already have progress skip it. */
 let guestChosen = false;

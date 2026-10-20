@@ -1,25 +1,31 @@
 # Accounts: how sign-in and saved progress work
 
-The site runs without any server. Accounts are optional and are added by filling in two
-values in `index.html`:
+Accounts are on, in **local mode**: everything lives inside the browser it was created in,
+with no server behind the site.
 
 ```js
-const CLOUD = { url:'https://YOUR-PROJECT.supabase.co', anonKey:'YOUR-ANON-KEY', required:true };
+const CLOUD = { url:'local', anonKey:'', required:true, domains:[], managerCode:'title-manager' };
 ```
 
-Leave the URL and key empty and the site saves progress on the device only, exactly as
-before. Fill them in and the first thing a new person sees is the **Create your account**
-pop-up (work email + password); after that comes the welcome and step 1. Their progress and
-stats then follow them to any computer or phone, and managers get a **Manager view**.
+- The first thing a new person sees is the **Create your account** pop-up (name, work email,
+  password; the Sign in tab is beside it). Then a welcome by name, then step 1.
+- Each person's progress and stats are kept under their account **on that computer**. Sign
+  out takes it off the screen for the next person; sign back in to see it again. Several
+  people can share one training computer.
+- Passwords are stored hashed (SHA-256), never as typed. Forgot a password? The pop-up lets
+  you set a new one right there (no email is sent, because there is no server).
+- **Manager view**: in the account menu. The first time, it asks for `managerCode`; after
+  that, that account can open it any time on that computer. It lists everyone who has
+  studied on that computer, with steps done, cards known, best mock exam, answers, accuracy
+  and last active.
+- The limit: an account does not follow a person to another computer or phone. Signing in
+  elsewhere says so and suggests using the computer where they signed up.
+- `domains`: work-email domains allowed to sign up (empty allows any address). `required`:
+  set to false to add "Continue without an account". `url:''` turns accounts off.
 
-`required:true` means nobody can use the site without an account (the pop-up has no close
-button). Set it to `false` to add a "Continue without an account" choice. Either way, if the
-account service can't be reached, the pop-up says so and lets people continue on the device
-so nobody is locked out of studying.
-
-The backend is a free [Supabase](https://supabase.com) project: email + password sign-in
-(Supabase Auth) and two small tables (Postgres). The site talks to it with plain `fetch`;
-there is no SDK and no CDN.
+To make progress follow people everywhere (and give managers one view of the whole team),
+switch to a free Supabase project. The site is already written for it; the setup below takes
+about five minutes, then `CLOUD` gets the project URL and anon key instead of `'local'`.
 
 ## One-time setup (about 5 minutes)
 
