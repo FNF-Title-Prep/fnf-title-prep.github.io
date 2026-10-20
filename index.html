@@ -1185,8 +1185,7 @@
       <button type="button" role="tab" data-mode="signup" aria-selected="false">Create account</button>
     </div>
     <form id="auth-form" novalidate>
-      <div class="field" id="auth-f-name"><label for="auth-name">Your name</label><input id="auth-name" type="text" autocomplete="name" maxlength="60" placeholder="First and last name"></div>
-      <div class="field" id="auth-f-email"><label for="auth-email">Work email</label><input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="yourname@fnf.com"></div>
+      <div class="field" id="auth-f-email"><label for="auth-email">Work email</label><input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="yourname@fnf.com"><div class="field-hint" id="auth-name-hint" aria-live="polite" hidden></div></div>
       <div class="field" id="auth-f-pass"><label for="auth-pass" id="auth-pass-label">Password</label><div class="pw"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="200"><button type="button" class="pw-toggle" id="auth-pw-toggle" aria-pressed="false" aria-label="Show password">Show</button></div><div class="field-hint" id="auth-pass-hint">At least 8 characters.</div></div>
       <div class="auth-error" id="auth-error" role="alert" hidden></div>
       <div class="auth-ok" id="auth-ok" role="status" hidden></div>
@@ -5165,9 +5164,26 @@ async function cloudResume(){
 }
 
 /* ---- Account button, menu and the My Progress strip ---- */
+/* Work emails are firstname.lastname@ — "martin.huffjr@fnf.com" becomes "Martin Huff Jr." */
+function nameFromEmail(email){
+  const local = String(email || '').split('@')[0];
+  const parts = local.split(/[._]+/).map(x=> x.replace(/[^A-Za-z'-]/g, '')).filter(Boolean);
+  if(!parts.length) return '';
+  const cap = w => w.split('-').map(x=> x ? x[0].toUpperCase() + x.slice(1).toLowerCase() : x).join('-');
+  const SUFFIX = { jr:'Jr.', sr:'Sr.', ii:'II', iii:'III', iv:'IV' };
+  let tail = '';
+  const last = parts[parts.length - 1].toLowerCase();
+  const glued = parts.length > 1 && /^([a-z'-]{3,})(jr|sr)$/.exec(last);     // "huffjr"
+  if(glued){ parts[parts.length - 1] = glued[1]; tail = ' ' + SUFFIX[glued[2]]; }
+  return parts.map((x, i)=>{
+    const l = x.toLowerCase();
+    if(i > 0 && SUFFIX[l]) return SUFFIX[l];                                 // "martin.huff.jr"
+    return x.length === 1 ? x.toUpperCase() + '.' : cap(x);                  // middle initial
+  }).join(' ') + tail;
+}
 function initials(name, email){
-  const src = (name || '').trim() || (email || '').split('@')[0];
-  const parts = src.replace(/[._\-]+/g, ' ').split(/\s+/).filter(Boolean);
+  const src = (name || '').trim() || nameFromEmail(email) || (email || '').split('@')[0];
+  const parts = src.replace(/[._]+/g, ' ').split(/\s+/).filter(w=> w && !/^(jr|sr|ii|iii|iv)\.?$/i.test(w));
   const first = (parts[0] || '')[0] || '', last = parts.length > 1 ? (parts[parts.length-1][0] || '') : '';
   return (first + last).toUpperCase() || '?';
 }
@@ -5305,7 +5321,7 @@ function openAuth(mode, o){
   document.body.classList.add('modal-open');
   setInert(true);
   $('auth').scrollTop = 0;
-  const first = authMode === 'signup' ? $('auth-name') : (authMode === 'reset' ? $('auth-pass') : $('auth-email'));
+  const first = authMode === 'reset' || authMode === 'manager' ? $('auth-pass') : $('auth-email');
   first.focus({ preventScroll:true });
 }
 function closeAuth(){
@@ -5364,7 +5380,7 @@ function setAuthMode(mode){
   seg.hidden = !(mode === 'signin' || mode === 'signup');
   seg.querySelectorAll('button').forEach(b=>{ const on = b.dataset.mode === mode; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
   const localReset = mode === 'forgot' && LOCAL();
-  $('auth-f-name').hidden = mode !== 'signup';
+  showNameHint();
   $('auth-f-email').hidden = mode === 'reset' || mode === 'manager';
   $('auth-f-pass').hidden = mode === 'forgot' && !localReset;
   $('auth-pass-label').textContent = mode === 'manager' ? 'Manager code' : ((mode === 'reset' || localReset) ? 'New password' : 'Password');
@@ -5397,7 +5413,13 @@ function togglePw(){
   b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
 }
 $('auth-pw-toggle').addEventListener('click', ()=>{ togglePw(); $('auth-pass').focus(); });
-$('auth-seg').addEventListener('click', e=>{ const b = e.target.closest('button[data-mode]'); if(b && b.dataset.mode !== authMode){ setAuthMode(b.dataset.mode); (b.dataset.mode === 'signup' ? $('auth-name') : $('auth-email')).focus(); } });
+$('auth-seg').addEventListener('click', e=>{ const b = e.target.closest('button[data-mode]'); if(b && b.dataset.mode !== authMode){ setAuthMode(b.dataset.mode); $('auth-email').focus(); } });
+function showNameHint(){
+  const n = authMode === 'signup' && /@/.test($('auth-email').value) ? nameFromEmail($('auth-email').value) : '';
+  $('auth-name-hint').textContent = n ? 'Name: ' + n : '';
+  $('auth-name-hint').hidden = !n;
+}
+$('auth-email').addEventListener('input', showNameHint);
 $('auth-forgot').addEventListener('click', ()=>{ setAuthMode('forgot'); $('auth-email').focus(); });
 $('auth-back').addEventListener('click', ()=>{ if(authMode === 'manager'){ closeAuth(); return; } setAuthMode('signin'); $('auth-email').focus(); });
 $('auth-alt').addEventListener('click', dismissAuth);
@@ -5423,13 +5445,12 @@ $('auth').addEventListener('keydown', e=>{
 $('auth-form').addEventListener('submit', async e=>{
   e.preventDefault();
   if($('auth-submit').disabled) return;
-  const name = $('auth-name').value.trim(), email = $('auth-email').value.trim().toLowerCase(), pw = $('auth-pass').value;
+  const email = $('auth-email').value.trim().toLowerCase(), pw = $('auth-pass').value, name = nameFromEmail(email);
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
   authMsg('error', ''); authMsg('ok', '');
   try {
     if(authMode === 'signup'){
-      if(!name) return authFail('Enter your name.', 'auth-name');
-      if(!emailOk) return authFail('Enter a valid email address.', 'auth-email');
+      if(!emailOk || !name) return authFail('Enter a valid email address.', 'auth-email');
       if(pw.length < 8) return authFail('Use at least 8 characters for your password.', 'auth-pass');
       setAuthBusy(true, 'Creating your account…');
       const r = await cloudSignUp(name, email, pw);
