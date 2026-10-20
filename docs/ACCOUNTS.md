@@ -4,7 +4,7 @@ Accounts are on, in **local mode**: everything lives inside the browser it was c
 with no server behind the site.
 
 ```js
-const CLOUD = { url:'local', anonKey:'', required:true, domains:[], managerCode:'title-manager' };
+const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], managerCode:'title-manager', sample:true };
 ```
 
 - The first thing a new person sees is the **Create your account** pop-up (name, work email,
@@ -20,8 +20,17 @@ const CLOUD = { url:'local', anonKey:'', required:true, domains:[], managerCode:
   and last active.
 - The limit: an account does not follow a person to another computer or phone. Signing in
   elsewhere says so and suggests using the computer where they signed up.
-- `domains`: work-email domains allowed to sign up (empty allows any address). `required`:
-  set to false to add "Continue without an account". `url:''` turns accounts off.
+- Click **Details** on any row for that person's full picture: steps done, every content
+  area (cards known, best quiz, status), each mock exam with its score and PASS/FAIL,
+  questions answered, accuracy, days studied and test date.
+- `domains`: work-email domains allowed to sign up (`fnf.com`; empty allows any address).
+  `required`: set to false to add "Continue without an account". `url:''` turns accounts off.
+- `sample:true` seeds one sample new hire ("Taylor Brooks", marked **Sample**) on every
+  computer so the Manager view has something to show; her record is a real run of the site by
+  a test agent. Set `sample` to false (and the sample disappears from new computers; on a
+  computer that already has it, sign in as a manager and it stays until the browser data is
+  cleared). Sign in as her with `taylor.brooks@fnf.com` / `Welcome2026!` to see My Progress
+  from a new hire's side.
 
 To make progress follow people everywhere (and give managers one view of the whole team),
 switch to a free Supabase project. The site is already written for it; the setup below takes

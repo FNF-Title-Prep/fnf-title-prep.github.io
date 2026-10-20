@@ -598,6 +598,18 @@
   table.admin-table td .mini-bar{ max-width:120px; margin:5px 0 0; height:4px; }
   table.admin-table th:nth-child(n+2), table.admin-table td:nth-child(n+2){ white-space:nowrap; }
   table.admin-table td{ font-variant-numeric:tabular-nums; }
+  table.admin-table .link-btn{ display:inline-block; margin-top:4px; padding:2px 0; background:none; border:0; color:var(--navy); font-size:.8rem; font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+  table.admin-table .link-btn:hover{ color:var(--navy-light); }
+  tr.detail-row > td{ padding:0 0 var(--s4); white-space:normal; }
+  .detail{ padding:var(--s4); border:1px solid var(--line); border-radius:var(--r); background:var(--surface-2); }
+  .detail-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s3); margin-bottom:var(--s3); }
+  .detail-grid > div{ padding:var(--s3); background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); }
+  .detail-grid span{ display:block; font-size:.66rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .detail-grid b{ display:block; margin-top:2px; font-size:1rem; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .detail h4{ margin:var(--s3) 0 var(--s2); font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  table.admin-table table.detail-table{ font-size:.86rem; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); }
+  table.admin-table table.detail-table th, table.admin-table table.detail-table td{ padding:8px 10px; white-space:normal; }
+  .sub-inline{ color:var(--muted); font-size:.78rem; }
 
   footer.foot{ padding:var(--s6) var(--s4) var(--s2); text-align:center; font-size:.76rem; line-height:1.5; color:var(--muted); }
   .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
@@ -636,6 +648,7 @@
     .acct-strip .acct-actions{ flex-basis:100%; }
     .acct-strip .acct-actions .btn{ flex:1; }
     .admin-tools{ flex-wrap:wrap; }
+    .detail-grid{ grid-template-columns:1fr 1fr; }
     .admin-tools input[type=search]{ max-width:none; flex-basis:100%; }
     .card{ padding:var(--s4); margin-bottom:var(--s3); border-radius:var(--r); }
     .page-head h2{ font-size:1.5rem; }
@@ -1221,7 +1234,7 @@ const AREA_DONE = { cards:0.8, quiz:80 };
    accounts off. `required`: the first screen on a new device is the account pop-up (false adds
    "Continue without an account"). `domains`: work-email domains allowed to sign up (empty =
    any). `managerCode`: typed once in the account menu to unlock the Manager view (local mode). */
-const CLOUD = { url:'local', anonKey:'', required:true, domains:[], managerCode:'title-manager' };
+const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], managerCode:'title-manager', sample:true };
 const LOCAL = () => CLOUD.url === 'local';
 /* Targeted practice sizes. */
 const MISSES_SESSION_MAX = 30;
@@ -4865,14 +4878,31 @@ async function localApi(path, o){
     const f = /^eq\.(.+)$/.exec(url.searchParams.get('id') || '');
     return Object.values(db.users).filter(x=> (x.id === u.id || isAdmin) && (!f || x.id === f[1])).map(x=>{
       const pr = db.progress[x.id];
-      return { id:x.id, email:x.email, display_name:x.name, role:x.role, created_at:x.created_at, progress: pr ? { stats:pr.stats, updated_at:pr.updated_at } : null };
+      return { id:x.id, email:x.email, display_name:x.name, role:x.role, created_at:x.created_at, sample: !!x.sample, progress: pr ? { stats:pr.stats, updated_at:pr.updated_at } : null };
     });
   }
   if(p === '/rest/v1/progress'){
-    if(method === 'GET'){ const pr = db.progress[u.id]; return pr ? [{ data:pr.data, updated_at:pr.updated_at }] : []; }
+    if(method === 'GET'){
+      const f = /^eq\.(.+)$/.exec(url.searchParams.get('user_id') || ''), id = f ? f[1] : u.id;
+      if(id !== u.id && !isAdmin) return [];
+      const pr = db.progress[id]; return pr ? [{ data:pr.data, updated_at:pr.updated_at }] : [];
+    }
     db.progress[u.id] = { data: body.data, stats: body.stats, updated_at: new Date().toISOString() }; localSave(db); return null;
   }
   localErr(404, 'not_found', 'not found');
+}
+
+/* A sample new hire, baked in so the Manager view has something to show on a brand-new computer.
+   Set CLOUD.sample to false to drop it. The record is a real run of the site by a test agent. */
+const SAMPLE_ACCOUNT = {"user":{"id":"umvgt3xq5ya210u","email":"taylor.brooks@fnf.com","name":"Taylor Brooks","hash":"92a2443c5966ca09a7d20be3b95f7a322fcab18df26eb5a041b001476f930793","role":"learner","created_at":"2026-10-14T15:12:38.000Z"},"progress":{"data":{"v":2,"fc":{"terms":{"reviewed":["terms-0","terms-1","terms-2","terms-3","terms-4","terms-5","terms-6","terms-7","terms-8","terms-9","terms-10","terms-ppookh3","terms-p1djs8c2","terms-pg3vw9u","terms-pz53ggc","terms-psyf4cd"],"known":["terms-1","terms-2","terms-3","terms-5","terms-6","terms-7","terms-9","terms-10","terms-ppookh3","terms-pg3vw9u","terms-pz53ggc","terms-psyf4cd"],"best":90},"policies":{"reviewed":["policies-0","policies-1","policies-2","policies-3","policies-4","policies-5","policies-6","policies-7","policies-8","policies-9","policies-p1a4aqoq","policies-piacgno","policies-pqlcq67","policies-plfocwa","policies-p19vojuh","policies-pe5n2yi","policies-pwqpgqx"],"known":["policies-0","policies-1","policies-2","policies-3","policies-4","policies-5","policies-6","policies-7","policies-8","policies-9","policies-p1a4aqoq","policies-piacgno","policies-pqlcq67","policies-plfocwa","policies-p19vojuh","policies-pe5n2yi","policies-pwqpgqx"],"best":80},"ownership":{"reviewed":["ownership-0","ownership-1","ownership-2","ownership-3","ownership-4","ownership-5","ownership-6","ownership-7","ownership-pvxwaz2","ownership-p1wrsarl","ownership-p1xl89nw"],"known":["ownership-0","ownership-1","ownership-2","ownership-3","ownership-4","ownership-5","ownership-6","ownership-7","ownership-pvxwaz2","ownership-p1wrsarl","ownership-p1xl89nw"],"best":100},"rights":{"reviewed":[],"known":[],"best":null},"legal":{"reviewed":[],"known":[],"best":null},"transfer":{"reviewed":[],"known":[],"best":null},"colaw":{"reviewed":[],"known":[],"best":null}},"gk":{"fc":{"defs":{"reviewed":[],"known":[]},"rules":{"reviewed":[],"known":[]},"curative":{"reviewed":[],"known":[]}}},"misses":{"P19vojuh":{"n":2,"ok":1,"t":1792508230914},"P1a4aqoq":{"n":3,"ok":0,"t":1792508245947},"D1s5qgi":{"n":2,"ok":0,"t":1792508245947},"D1itq5yx":{"n":2,"ok":0,"t":1792508245946},"D1v978ar":{"n":2,"ok":0,"t":1792508245946},"Piacgno":{"n":1,"ok":1,"t":1792508231314},"D1nkb6od":{"n":1,"ok":1,"t":1792508231680},"P1wrsarl":{"n":1,"ok":1,"t":1792508232047},"P1bit71z":{"n":1,"ok":1,"t":1792508232450},"Dtly93o":{"n":1,"ok":0,"t":1792508232864},"P1lvps0t":{"n":1,"ok":1,"t":1792508233231},"Dq8932v":{"n":2,"ok":0,"t":1792508245948},"D1cm77r4":{"n":1,"ok":1,"t":1792508234065},"D187sgja":{"n":1,"ok":0,"t":1792508234463},"Dlibhyl":{"n":1,"ok":0,"t":1792508234863},"Pep6qda":{"n":1,"ok":0,"t":1792508235279},"Da5ct5m":{"n":1,"ok":0,"t":1792508235714},"D9hihxr":{"n":1,"ok":0,"t":1792508236150},"D1oz45lr":{"n":1,"ok":0,"t":1792508236530},"Pv7l3ka":{"n":1,"ok":0,"t":1792508236946},"Ppookh3":{"n":1,"ok":0,"t":1792508245946},"Pe5n2yi":{"n":1,"ok":0,"t":1792508245947},"Pqlcq67":{"n":1,"ok":0,"t":1792508245947},"D1uzbf3d":{"n":1,"ok":0,"t":1792508245947},"Pvxwaz2":{"n":1,"ok":0,"t":1792508245947},"D1xe1vvq":{"n":1,"ok":0,"t":1792508245947},"Dcl1gxu":{"n":1,"ok":0,"t":1792508245947},"Pionpcy":{"n":1,"ok":0,"t":1792508245947},"P1sojzyw":{"n":1,"ok":0,"t":1792508245947},"D1t3oqk5":{"n":1,"ok":0,"t":1792508245948},"D16co5yr":{"n":1,"ok":0,"t":1792508245948},"P1qmp118":{"n":1,"ok":0,"t":1792508245948},"Pzw2ypq":{"n":1,"ok":0,"t":1792508245948},"D1kwdcuu":{"n":1,"ok":0,"t":1792508245948},"Dgmzz61":{"n":1,"ok":0,"t":1792508245948},"P80cj46":{"n":1,"ok":0,"t":1792508245948},"D1vq1mmw":{"n":1,"ok":0,"t":1792508245948},"Doiaez1":{"n":1,"ok":0,"t":1792508245949},"P1fke5ur":{"n":1,"ok":0,"t":1792508245949},"D1ew0tpe":{"n":1,"ok":0,"t":1792508245949}},"recent":{"terms":[0,1,1,1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,1,0],"policies":[1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,0,1],"ownership":[1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,0],"rights":[0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1],"legal":[0,1,1,1,0,1,1,1,0,1,1,0,1,1,0,1],"transfer":[0,1,1,1,0,1,1,1,0,1,1,0,1,1],"colaw":[1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1]},"testDate":"2026-11-07","reports":[],"intro":true,"path":{"welcomed":true,"celebrated":false,"lessonRead":{"terms":true,"policies":true,"ownership":true},"coached":{"area:terms":true,"area:policies":true,"area:ownership":true,"area:rights":true}},"stats":{"answered":190,"correct":138},"days":{"2026-10-14":true,"2026-10-15":true,"2026-10-17":true,"2026-10-19":true},"history":[{"id":"1792508237297-7oq9t5","date":"2026-10-17T19:40:38.000Z","mode":"study","score":75,"correct":56,"total":75,"pass":true,"perCat":{"terms":{"correct":7,"total":10},"policies":{"correct":8,"total":10},"ownership":{"correct":6,"total":8},"rights":{"correct":6,"total":8},"legal":{"correct":6,"total":8},"transfer":{"correct":5,"total":7},"colaw":{"correct":18,"total":24}}},{"id":"1792508245949-8dlm1k","date":"2026-10-19T18:05:38.000Z","mode":"sim","score":67,"correct":50,"total":75,"pass":false,"perCat":{"terms":{"correct":6,"total":10},"policies":{"correct":7,"total":10},"ownership":{"correct":5,"total":8},"rights":{"correct":6,"total":8},"legal":{"correct":5,"total":8},"transfer":{"correct":5,"total":7},"colaw":{"correct":16,"total":24}}}]},"stats":{"steps_done":5,"steps_total":10,"areas_done":3,"ready":false,"cards_known":40,"cards_total":137,"exams":2,"timed_exams":1,"best_exam":75,"last_exam":67,"last_exam_at":"2026-10-19T18:05:38.000Z","answered":190,"correct":138,"days":4,"test_date":"2026-11-07"},"updated_at":"2026-10-19T18:09:38.000Z"}};
+function seedSample(){
+  if(!LOCAL() || !CLOUD.sample || !SAMPLE_ACCOUNT) return;
+  const db = localDb();
+  if(db.users[SAMPLE_ACCOUNT.user.email]) return;
+  const u = Object.assign({}, SAMPLE_ACCOUNT.user, { sample:true });
+  db.users[u.email] = u;
+  db.progress[u.id] = Object.assign({}, SAMPLE_ACCOUNT.progress);
+  localSave(db);
 }
 
 /* ---- Sign up / sign in / reset ---- */
@@ -5074,6 +5104,7 @@ function cloudInit(){
   const el = $('acct');
   if(!Cloud.on){ el.hidden = true; return; }
   el.hidden = false;
+  seedSample();
   if(cloudHandleHash()) return;
   Cloud.session = cloudStoredSession();
   renderAccountUI();
@@ -5438,7 +5469,7 @@ async function renderAdmin(){
     const pr = Array.isArray(r.progress) ? r.progress[0] : r.progress;
     const st = (pr && pr.stats && typeof pr.stats === 'object') ? pr.stats : {};
     const active = pr && pr.updated_at ? new Date(pr.updated_at).getTime() : 0;
-    return { id:r.id, name: r.display_name || String(r.email || '').split('@')[0], email: r.email || '', role: r.role, joined: r.created_at ? new Date(r.created_at).getTime() : 0, active, st };
+    return { id:r.id, name: r.display_name || String(r.email || '').split('@')[0], email: r.email || '', role: r.role, sample: !!r.sample, joined: r.created_at ? new Date(r.created_at).getTime() : 0, active, st };
   }).sort((a, b)=> (b.active || b.joined) - (a.active || a.joined));
   drawAdmin();
 }
@@ -5456,7 +5487,7 @@ function drawAdmin(){
     const cards = st.cards_total ? Math.round(100 * (st.cards_known|0) / st.cards_total) : 0;
     const acc = st.answered ? Math.round(100 * (st.correct|0) / st.answered) : null;
     const best = typeof st.best_exam === 'number' ? st.best_exam + '%' : '—';
-    return `<tr><td><b>${escHtml(r.name)}</b>${r.role === 'admin' ? ' <span class="pill new">Manager</span>' : ''}<span class="sub">${escHtml(r.email)}</span></td>
+    return `<tr><td><b>${escHtml(r.name)}</b>${r.role === 'admin' ? ' <span class="pill new">Manager</span>' : ''}${r.sample ? ' <span class="pill new">Sample</span>' : ''}<span class="sub">${escHtml(r.email)}</span><button type="button" class="link-btn" data-detail="${escHtml(r.id)}" aria-expanded="false">Details</button></td>
       <td><b>${st.steps_done|0} of ${stepsTotal}</b>${st.ready ? ' <span class="pill done">Done</span>' : ''}<div class="mini-bar" aria-hidden="true"><i style="width:${pct}%"></i></div></td>
       <td>${cards}%</td>
       <td>${best}${typeof st.best_exam === 'number' ? `<span class="sub">${plural(st.exams|0, 'exam')} taken</span>` : ''}</td>
@@ -5467,6 +5498,61 @@ function drawAdmin(){
 }
 $('admin-filter').addEventListener('input', drawAdmin);
 $('admin-refresh').addEventListener('click', renderAdmin);
+/* One person's results, read from their saved state. */
+function summarizeData(d){
+  d = d && typeof d === 'object' ? d : {};
+  const fc = d.fc || {};
+  const areas = CATS.map(c=>{
+    const p = fc[c.key] || {}, len = deckFor(c.key, 'all').length;
+    const reviewed = Array.isArray(p.reviewed) ? p.reviewed.length : 0, known = Array.isArray(p.known) ? p.known.length : 0;
+    const best = typeof p.best === 'number' ? p.best : null;
+    const done = !!len && reviewed / len >= AREA_DONE.cards && best !== null && best >= AREA_DONE.quiz;
+    return { key:c.key, len, reviewed, known, best, status: done ? 'done' : ((reviewed > 0 || best !== null) ? 'progress' : 'new') };
+  });
+  const hist = (Array.isArray(d.history) ? d.history : []).filter(h=> h && typeof h.score === 'number' && h.date).sort((a, b)=> new Date(a.date) - new Date(b.date));
+  const sims = hist.filter(h=> h.mode === 'sim');
+  let streak = 0;
+  for(let i = sims.length-1; i >= 0 && streak < 2; i--){ if(sims[i].score >= PASS_SCORE) streak++; else break; }
+  const stepsDone = (d.intro === true ? 1 : 0) + areas.filter(a=> a.status === 'done').length + (hist.some(h=> h.mode === 'study') ? 1 : 0) + (streak >= 2 ? 1 : 0);
+  const st = d.stats || {};
+  return { areas, hist, stepsDone, stepsTotal: CATS.length + 3, answered: st.answered|0, correct: st.correct|0, days: Object.keys(d.days || {}).length, testDate: typeof d.testDate === 'string' ? d.testDate : '' };
+}
+function detailHtml(d){
+  const s = summarizeData(d);
+  const acc = s.answered ? Math.round(100 * s.correct / s.answered) : null;
+  const label = { done:'Complete', progress:'In progress', new:'Not started' };
+  const areaRows = s.areas.map(a=> `<tr><td>${areaNumber(a.key)}. ${escHtml(AREA_SHORT[a.key])}</td><td>${a.known} of ${a.len}</td><td>${a.best === null ? '—' : a.best + '%'}</td><td><span class="pill ${a.status}">${label[a.status]}</span></td></tr>`).join('');
+  const examRows = s.hist.length
+    ? s.hist.map(h=> `<tr><td>${fmtDate(h.date)}</td><td>${h.mode === 'sim' ? 'Timed' : 'Study'}</td><td>${h.score}% <span class="sub-inline">(${h.correct} of ${h.total})</span></td><td style="color:${h.pass ? 'var(--good)' : 'var(--bad)'}; font-weight:600;">${h.pass ? 'PASS' : 'FAIL'}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="empty-note">No mock exams yet.</td></tr>';
+  return `<div class="detail">
+    <div class="detail-grid">
+      <div><span>Guided Path</span><b>${s.stepsDone} of ${s.stepsTotal} steps</b></div>
+      <div><span>Questions answered</span><b>${s.answered}${acc === null ? '' : ' · ' + acc + '% right'}</b></div>
+      <div><span>Days studied</span><b>${s.days}</b></div>
+      <div><span>Test date</span><b>${s.testDate ? escHtml(s.testDate) : 'Not set'}</b></div>
+    </div>
+    <h4>Content areas</h4>
+    <table class="progress-table detail-table"><thead><tr><th>Area</th><th>Cards known</th><th>Best quiz</th><th>Status</th></tr></thead><tbody>${areaRows}</tbody></table>
+    <h4>Mock exams</h4>
+    <table class="progress-table detail-table"><thead><tr><th>Date</th><th>Mode</th><th>Score</th><th>Result</th></tr></thead><tbody>${examRows}</tbody></table>
+  </div>`;
+}
+$('admin-body').addEventListener('click', async e=>{
+  const b = e.target.closest('button[data-detail]');
+  if(!b) return;
+  const tr = b.closest('tr'), next = tr.nextElementSibling;
+  if(next && next.classList.contains('detail-row')){ next.remove(); b.setAttribute('aria-expanded', 'false'); b.textContent = 'Details'; return; }
+  const dr = document.createElement('tr');
+  dr.className = 'detail-row';
+  dr.innerHTML = '<td colspan="7"><div class="detail empty-note">Loading…</div></td>';
+  tr.after(dr);
+  b.setAttribute('aria-expanded', 'true'); b.textContent = 'Hide';
+  try {
+    const rows = await cloudFetch('/rest/v1/progress?select=data,updated_at&user_id=eq.' + encodeURIComponent(b.dataset.detail), { auth:true });
+    dr.firstElementChild.innerHTML = detailHtml(rows && rows[0] ? rows[0].data : null);
+  } catch(err){ dr.firstElementChild.innerHTML = `<div class="detail empty-note">Couldn't load the details. ${escHtml(err.message)}</div>`; }
+});
 
 /* =========================================================
    INIT
