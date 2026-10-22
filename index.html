@@ -397,7 +397,7 @@
   details.exam-jump > summary::-webkit-details-marker{ display:none; }
   details.exam-jump > summary .chev{ transition:transform var(--t) var(--ease); }
   details.exam-jump[open] > summary .chev{ transform:rotate(180deg); }
-  .exam-nav-grid{ display:flex; flex-wrap:wrap; gap:5px; max-height:132px; margin:var(--s2) 0 var(--s3); padding:var(--s3); overflow-y:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; }
+  .exam-nav-grid{ display:flex; flex-wrap:wrap; gap:5px; max-height:164px; margin:var(--s2) 0 var(--s3); padding:var(--s3); overflow-y:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; }
   .exam-nav-grid button{ position:relative; width:30px; height:30px; background:var(--surface); border:1px solid var(--line-strong); border-radius:6px; color:var(--muted); font-size:.72rem; font-weight:600; cursor:pointer; font-variant-numeric:tabular-nums; }
   .exam-nav-grid button:hover{ border-color:var(--navy); }
   .exam-nav-grid button.answered{ background:var(--navy-tint); border-color:#9db3d9; color:var(--navy); }
@@ -661,6 +661,7 @@
     .acct-strip .acct-actions .btn{ flex:1; }
     .admin-tools{ flex-wrap:wrap; }
     .detail-grid{ grid-template-columns:1fr 1fr; }
+    .detail{ position:sticky; left:0; max-width:calc(100vw - 72px); }   /* the team table scrolls sideways on a phone; the Details panel stays in view */
     .admin-tools input[type=search]{ max-width:none; flex-basis:100%; }
     .card{ padding:var(--s4); margin-bottom:var(--s3); border-radius:var(--r); }
     .page-head h2{ font-size:1.5rem; }
@@ -689,6 +690,10 @@
     .fc-nav .btn{ flex:1; }
     .fc-mark-row .btn{ flex:1; min-width:0; }
     .q-footer .btn{ min-height:46px; }
+    /* Exam footer: Back + Flag on one row, Skip + Next on the next, so "Next" never runs off the screen */
+    #exam-play-card .q-footer{ flex-wrap:wrap; gap:var(--s2); }
+    #exam-play-card .q-footer > div{ flex:1 1 100%; }
+    #exam-play-card .q-footer > div .btn{ flex:1 1 auto; white-space:nowrap; }
     .exam-nav-grid{ gap:6px; padding:var(--s2); max-height:120px; }
     .exam-nav-grid button{ width:38px; height:38px; }
     .exam-nav-legend{ gap:var(--s3); font-size:.68rem; }
@@ -5310,7 +5315,6 @@ function openAuth(mode, o){
   setAuthMode(mode || 'signin');
   if(o.email) $('auth-email').value = o.email;
   if(o.error) authMsg('error', o.error);
-  $('auth-kicker').textContent = authGate ? 'Welcome' : 'Your account';
   $('auth-alt').hidden = !authThen || hardGate();
   $('auth-x').hidden = hardGate();
   $('auth-foot').hidden = !authGate;
@@ -5374,6 +5378,7 @@ function setAuthMode(mode){
   authMode = mode;
   const c = Object.assign({}, AUTH_COPY[mode], LOCAL() ? (AUTH_LOCAL[mode] || {}) : {});
   $('auth-title').textContent = c.title; $('auth-submit').textContent = c.submit;
+  $('auth-kicker').textContent = (authGate && (mode === 'signin' || mode === 'signup')) ? 'Welcome' : 'Your account';   // "Welcome" only above Sign in / Create account on first visit
   const seg = $('auth-seg');
   seg.hidden = !(mode === 'signin' || mode === 'signup');
   seg.querySelectorAll('button').forEach(b=>{ const on = b.dataset.mode === mode; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
@@ -5386,6 +5391,7 @@ function setAuthMode(mode){
   $('auth-pass-hint').hidden = mode === 'signin' || mode === 'manager';
   $('auth-forgot').hidden = mode !== 'signin';
   $('auth-back').hidden = !(mode === 'forgot' || mode === 'manager');
+  $('auth-back').textContent = mode === 'manager' ? 'Cancel' : 'Back to sign in';   // the manager-code pop-up opens while already signed in
   authMsg('error', ''); authMsg('ok', '');
 }
 function authMsg(kind, text){ const el = $(kind === 'ok' ? 'auth-ok' : 'auth-error'); el.textContent = text || ''; el.hidden = !text; }
