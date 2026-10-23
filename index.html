@@ -4751,6 +4751,7 @@ function cloudMessage(j, status){
   if(has(/wrong_code/i)) return "That code isn't right.";
   if(has(/invalid login credentials|invalid_credentials/i)) return "That email and password don't match. New here? Choose Create account.";
   if(has(/already registered|user_already_exists|email_exists/i)) return 'There is already an account with that email. Sign in instead.';
+  if(has(/same_password|different from the old/i)) return 'Pick a password you have not used here before.';
   if(has(/weak_password|password should/i)){
     const why = /password should[^.]*/i.exec(raw);                 // show Supabase's own rule (it can ask for more than length)
     return why ? why[0].replace(/^p/, 'P') + '.' : 'Pick a stronger password.';
@@ -4759,7 +4760,6 @@ function cloudMessage(j, status){
   if(has(/signup_disabled|signups not allowed/i)) return 'New sign-ups are turned off right now. Ask your manager.';
   if(has(/signup_not_allowed|database error saving new user/i)) return 'Only company email addresses can create an account.';
   if(has(/invalid refresh token|refresh_token_not_found|session_expired|session_not_found/i)) return 'Your session expired. Sign in again.';
-  if(has(/same_password|different from the old/i)) return 'Pick a password you have not used here before.';
   if(has(/validation_failed|unable to validate email|invalid format|is invalid/i)) return 'Enter a valid email address.';
   if(status >= 500) return 'The account service had a problem. Try again in a moment.';
   return raw ? raw.replace(/[.\s]+$/, '').slice(0, 160) + '.' : 'Something went wrong. Try again.';
