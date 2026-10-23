@@ -4751,7 +4751,10 @@ function cloudMessage(j, status){
   if(has(/wrong_code/i)) return "That code isn't right.";
   if(has(/invalid login credentials|invalid_credentials/i)) return "That email and password don't match. New here? Choose Create account.";
   if(has(/already registered|user_already_exists|email_exists/i)) return 'There is already an account with that email. Sign in instead.';
-  if(has(/weak_password|password should/i)) return 'Use a longer password: at least 8 characters.';
+  if(has(/weak_password|password should/i)){
+    const why = /password should[^.]*/i.exec(raw);                 // show Supabase's own rule (it can ask for more than length)
+    return why ? why[0].replace(/^p/, 'P') + '.' : 'Pick a stronger password.';
+  }
   if(has(/email_not_confirmed|not confirmed/i)) return 'Confirm your email first: open the link we sent you, then sign in.';
   if(has(/signup_disabled|signups not allowed/i)) return 'New sign-ups are turned off right now. Ask your manager.';
   if(has(/signup_not_allowed|database error saving new user/i)) return 'Only company email addresses can create an account.';
@@ -5169,8 +5172,7 @@ function cloudHandleHash(){
   history.replaceState(null, '', location.pathname + location.search);
   if(h.get('error')){
     renderAccountUI();
-    const why = h.get('error_description') || '';
-    openAuth('forgot', { error: /expired|invalid/i.test(why) ? 'That link has expired. Enter your email and we will send a new one.' : 'That link did not work. Enter your email to get a new one.' });
+    openAuth('signin', { gate: !Cloud.session, error: "That email link didn't work. Sign in with your email and password." });   // work email security often opens links first, which uses them up
     return true;
   }
   cloudFinishLink({ access_token: h.get('access_token'), refresh_token: h.get('refresh_token') || '',
