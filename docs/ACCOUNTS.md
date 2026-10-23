@@ -1,40 +1,22 @@
 # Accounts: how sign-in and saved progress work
 
-Accounts are on, in **local mode**: everything lives inside the browser it was created in,
-with no server behind the site.
+Accounts use a free Supabase project (`vgoxcggaivtyzmlvkzkn`). Logins and progress are
+stored on the server, so they work on any computer or phone and survive cleared browser data.
 
 ```js
-const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], managerCode:'martinhuff', sample:true };
+const CLOUD = { url:'https://vgoxcggaivtyzmlvkzkn.supabase.co', anonKey:'sb_publishable_…', required:true, domains:['fnf.com'], managerCode:'', sample:false };
 ```
 
-- The first thing a new person sees is the **Create your account** pop-up (name, work email,
-  password; the Sign in tab is beside it). Then a welcome by name, then step 1.
-- Each person's progress and stats are kept under their account **on that computer**. Sign
-  out takes it off the screen for the next person; sign back in to see it again. Several
-  people can share one training computer.
-- Passwords are stored hashed (SHA-256), never as typed. Forgot a password? The pop-up lets
-  you set a new one right there (no email is sent, because there is no server).
-- **Manager view**: in the account menu. The first time, it asks for `managerCode`; after
-  that, that account can open it any time on that computer. It lists everyone who has
-  studied on that computer, with steps done, cards known, best mock exam, answers, accuracy
-  and last active.
-- The limit: an account does not follow a person to another computer or phone. Signing in
-  elsewhere says so and suggests using the computer where they signed up.
-- Click **Details** on any row for that person's full picture: steps done, every content
-  area (cards known, best quiz, status), each mock exam with its score and PASS/FAIL,
-  questions answered, accuracy, days studied and test date.
-- `domains`: work-email domains allowed to sign up (`fnf.com`; empty allows any address).
-  `required`: set to false to add "Continue without an account". `url:''` turns accounts off.
-- `sample:true` seeds one sample new hire ("Taylor Brooks", marked **Sample**) on every
-  computer so the Manager view has something to show; her record is a real run of the site by
-  a test agent. Set `sample` to false (and the sample disappears from new computers; on a
-  computer that already has it, sign in as a manager and it stays until the browser data is
-  cleared). Sign in as her with `taylor.brooks@example.com` / `Welcome2026!` to see My Progress
-  from a new hire's side.
-
-To make progress follow people everywhere (and give managers one view of the whole team),
-switch to a free Supabase project. The site is already written for it; the setup below takes
-about five minutes, then `CLOUD` gets the project URL and anon key instead of `'local'`.
+- The first screen is **Create your account** (work email + password). Only @fnf.com addresses
+  can sign up (set in the database table `allowed_signups`).
+- Progress saves to the account a second or two after every change, and is pulled back on
+  every device the person signs in on.
+- **Manager view**: Martin.Huffjr@fnf.com is a manager from the start. Anyone else opens
+  Manager view in the account menu and enters the manager code (`martinhuff`), which lives
+  only in the database (`app_settings`), never in the website.
+- People who made a browser-only account before the switch: when they create the real account
+  with the same email in the same browser, their old progress is added to it automatically.
+- `url:'local'` switches back to browser-only accounts (no server).
 
 ## One-time setup (about 5 minutes)
 

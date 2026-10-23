@@ -163,14 +163,68 @@ create policy "progress: update own" on public.progress
   for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- ---------------------------------------------------------------------
--- Who may sign up.  [FILL IN] — replace the two example rows.
--- Add one row per company domain, and one per individual address.
--- Managers get role 'admin'. Running this again just updates the rows.
+-- Table access for signed-in people (row-level security above still
+-- limits each person to their own rows; managers can read everyone's).
+-- ---------------------------------------------------------------------
+grant select, update on public.profiles to authenticated;
+grant select, insert, update on public.progress to authenticated;
+
+-- ---------------------------------------------------------------------
+-- Manager code: typed once in the account menu to unlock the Manager view.
+-- The code lives only in the database, never in the website.
+-- ---------------------------------------------------------------------
+create table if not exists public.app_settings (
+  key   text primary key,
+  value text not null
+);
+alter table public.app_settings enable row level security;
+revoke all on public.app_settings from anon, authenticated;
+
+
+-- guard_profile blocks people from changing their own role; manager_unlock
+-- is the one approved way, so let it through.
+create or replace function public.guard_profile() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.role is distinct from old.role and not public.is_admin()
+     and coalesce(current_setting('app.unlocking', true), '') <> 'yes' then
+    raise exception 'only a manager can change roles';
+  end if;
+  new.email := old.email;
+  new.id := old.id;
+  new.created_at := old.created_at;
+  return new;
+end $$;
+
+create or replace function public.manager_unlock(code text) returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then
+    raise exception 'session_not_found';
+  end if;
+  if not exists (select 1 from public.app_settings where key = 'manager_code' and value = code) then
+    raise exception 'wrong_code: That code isn''t right' using errcode = '42501';
+  end if;
+  perform set_config('app.unlocking', 'yes', true);
+  update public.profiles set role = 'admin' where id = auth.uid();
+  perform set_config('app.unlocking', '', true);
+  return true;
+end $$;
+
+revoke execute on function public.manager_unlock(text) from public, anon;
+grant execute on function public.manager_unlock(text) to authenticated;
+
+insert into public.app_settings (key, value) values ('manager_code', 'martinhuff')
+on conflict (key) do update set value = excluded.value;
+
+-- ---------------------------------------------------------------------
+-- Who may sign up. Any @fnf.com address; Martin is a manager from the start.
+-- Running this again just updates the rows.
 -- ---------------------------------------------------------------------
 insert into public.allowed_signups (pattern, role, note) values
-  ('example.com',        'learner', 'company email domain'),
-  ('manager@example.com','admin',   'sees the Manager view')
+  ('fnf.com',                'learner', 'company email domain'),
+  ('martin.huffjr@fnf.com',  'admin',   'site owner, sees the Manager view')
 on conflict (pattern) do update set role = excluded.role, note = excluded.note;
 
 -- To make someone who already has an account a manager:
---   update public.profiles set role = 'admin' where email = 'name@example.com';
+--   update public.profiles set role = 'admin' where email = 'name@fnf.com';

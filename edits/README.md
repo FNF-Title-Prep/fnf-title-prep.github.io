@@ -37,14 +37,12 @@ repository and say: "Read edits/README.md, then fix: <the problem>".
 
 ## How the main parts work
 
-- **Accounts (local mode):** `const CLOUD = { url:'local', ... }` near the top of the
-  script. Sign-up needs an @fnf.com email; the name comes from the email
-  (martin.huffjr@fnf.com becomes "Martin Huff Jr."). Progress is saved in that browser on
-  that computer only. Details: `docs/ACCOUNTS.md`.
-- **Manager view:** account menu, then "Manager view", code `martinhuff`. Lists everyone who
-  has studied on that computer, with a Details panel for each person.
-- **Sample new hire:** "Taylor Brooks" (taylor.brooks@example.com / Welcome2026!) is seeded
-  so the Manager view is never empty. Turn off with `sample:false` in `CLOUD`.
+- **Accounts:** real accounts on a free Supabase project (`vgoxcggaivtyzmlvkzkn`), set in
+  `const CLOUD = {...}` near the top of the script. Only @fnf.com emails can sign up; the
+  name comes from the email. Progress follows people to any device. Database setup:
+  `supabase/schema.sql`. Details: `docs/ACCOUNTS.md`.
+- **Manager view:** Martin is a manager automatically; others enter code `martinhuff`
+  (stored in the database, not the site).
 - **Guided Path:** 10 steps. Step 1 is the big picture, steps 2 to 8 are the 7 content
   areas (lesson, flashcards, quiz at 80%), steps 9 and 10 are mock exams.
 - **Tabs:** Guided Path, Flashcards, Quizzes, Mock Exam, My Progress, Quick Reference, Search.
@@ -53,8 +51,7 @@ repository and say: "Read edits/README.md, then fix: <the problem>".
 
 ## Known limits
 
-- Progress does not follow a person to another computer or phone. To change that, switch
-  to a free Supabase project (steps in `docs/ACCOUNTS.md`; the code is already written).
+- Supabase's free email service sends only a few password-reset emails per hour.
 - Anyone with the link can open the site. Accounts are for tracking, not security.
 
 ## History of decisions (most recent last)

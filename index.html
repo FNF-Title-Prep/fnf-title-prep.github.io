@@ -1235,7 +1235,7 @@ const AREA_DONE = { cards:0.8, quiz:80 };
    accounts off. `required`: the first screen on a new device is the account pop-up (false adds
    "Continue without an account"). `domains`: work-email domains allowed to sign up (empty =
    any). `managerCode`: typed once in the account menu to unlock the Manager view (local mode). */
-const CLOUD = { url:'local', anonKey:'', required:true, domains:['fnf.com'], managerCode:'martinhuff', sample:true };
+const CLOUD = { url:'https://vgoxcggaivtyzmlvkzkn.supabase.co', anonKey:'sb_publishable_1hOSpzX1XsZCwhBt2bF7pA_ztz17Jhv', required:true, domains:['fnf.com'], managerCode:'', sample:false };
 const LOCAL = () => CLOUD.url === 'local';
 /* Targeted practice sizes. */
 const MISSES_SESSION_MAX = 30;
@@ -4748,7 +4748,8 @@ function cloudMessage(j, status){
   const has = re => re.test(raw) || re.test(code);
   if(status === 0) return "Can't reach the server. Check your connection and try again.";
   if(status === 429 || has(/rate limit|over_.*rate_limit|too many/i)) return 'Too many attempts. Wait a few minutes and try again.';
-  if(has(/invalid login credentials|invalid_credentials/i)) return "That email and password don't match.";
+  if(has(/wrong_code/i)) return "That code isn't right.";
+  if(has(/invalid login credentials|invalid_credentials/i)) return "That email and password don't match. New here? Choose Create account.";
   if(has(/already registered|user_already_exists|email_exists/i)) return 'There is already an account with that email. Sign in instead.';
   if(has(/weak_password|password should/i)) return 'Use a longer password: at least 8 characters.';
   if(has(/email_not_confirmed|not confirmed/i)) return 'Confirm your email first: open the link we sent you, then sign in.';
@@ -4769,8 +4770,8 @@ async function cloudFetch(path, o){
     const tok = await cloudToken();
     if(!tok) throw cloudError('Your session expired. Sign in again.', 401, null);
     headers['Authorization'] = 'Bearer ' + tok;
-  } else if(!headers['Authorization']){
-    headers['Authorization'] = 'Bearer ' + CLOUD.anonKey;
+  } else if(!headers['Authorization'] && /^eyJ/.test(CLOUD.anonKey)){
+    headers['Authorization'] = 'Bearer ' + CLOUD.anonKey;   // legacy anon keys only; publishable keys go in apikey alone
   }
   let res;
   const ctrl = o.timeout && typeof AbortController === 'function' ? new AbortController() : null;
@@ -4781,7 +4782,16 @@ async function cloudFetch(path, o){
   const text = await res.text();
   let json = null;
   try { json = text ? JSON.parse(text) : null; } catch(e){ json = null; }
-  if(!res.ok) throw cloudError(cloudMessage(json, res.status), res.status, json);
+  if(!res.ok){
+    /* The server says the sign-in token is no longer good (expired early, or this computer's
+       clock is off): renew it once and try again, so nobody gets bounced out mid-study. */
+    if(res.status === 401 && o.auth && !o.retried && Cloud.session && Cloud.session.refresh_token){
+      Cloud.session.expires_at = 0;
+      const tok = await cloudToken();
+      if(tok) return cloudFetch(path, Object.assign({}, o, { retried:true }));
+    }
+    throw cloudError(cloudMessage(json, res.status), res.status, json);
+  }
   return json;
 }
 
@@ -4965,7 +4975,7 @@ function localHasProgress(){
 }
 async function cloudFinishSignIn(opts){
   opts = opts || {};
-  const go = async ()=>{ await cloudSyncDown(true); if(opts.then) opts.then(); };
+  const go = async ()=>{ importOldLocalAccount(); await cloudSyncDown(true); if(opts.then) opts.then(); };
   if(!opts.ask || !localHasProgress()) return go();
   showGuide({
     kicker:'One quick question',
@@ -4974,6 +4984,25 @@ async function cloudFinishSignIn(opts){
     primary:['Yes, add it to my account', ()=> go()],
     secondary:['No, use my account only', ()=>{ clearLocalProgress(); location.reload(); }]
   });
+}
+
+/* Before real accounts, accounts lived only in this browser. If this browser has one for the
+   same email, add its progress to the real account once, then forget the old copy. */
+function importOldLocalAccount(){
+  if(LOCAL() || !Cloud.session) return;
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY); if(!raw) return;
+    const db = JSON.parse(raw); if(!db || !db.users) return;
+    const email = String(Cloud.session.user.email || '').toLowerCase();
+    const u = db.users[email];
+    if(u && !u.sample){
+      const pr = db.progress && db.progress[u.id];
+      if(pr && pr.data && typeof pr.data === 'object') applySnapshot(mergeSnapshots(cloudSnapshot(), pr.data));
+      delete db.users[email]; if(db.progress) delete db.progress[u.id];
+    }
+    const left = Object.values(db.users).filter(x=> x && !x.sample).length;
+    if(left) localStorage.setItem(LOCAL_KEY, JSON.stringify(db)); else localStorage.removeItem(LOCAL_KEY);
+  } catch(e){ /* nothing to bring over */ }
 }
 
 /* ---- Saving and loading progress ---- */
@@ -5129,6 +5158,7 @@ function cloudInit(){
   seedSample();
   if(cloudHandleHash()) return;
   Cloud.session = cloudStoredSession();
+  if(Cloud.session && !LOCAL() && !/^eyJ/.test(Cloud.session.access_token)){ cloudStore(null); }   // a sign-in from the old browser-only accounts
   renderAccountUI();
   if(Cloud.session) cloudResume();
 }
@@ -5212,7 +5242,7 @@ function renderAccountUI(){
   $('acct-avatar').textContent = signed ? initials(acctName(), Cloud.session.user.email) : '';
   $('acct-name').textContent = signed ? firstName() : 'Sign in';
   btn.setAttribute('aria-label', signed ? 'Account menu, ' + acctName() : 'Sign in or create an account');
-  $('acct-admin').hidden = !(signed && ((Cloud.profile && Cloud.profile.role === 'admin') || (LOCAL() && !!CLOUD.managerCode)));
+  $('acct-admin').hidden = !(signed && ((Cloud.profile && Cloud.profile.role === 'admin') || !LOCAL() || !!CLOUD.managerCode));
   if(signed) $('acct-who').innerHTML = `<b>${escHtml(acctName())}</b><span>${escHtml(Cloud.session.user.email)}</span>`;
   else closeAcctMenu();
   if($('view-progress').classList.contains('active')) renderAccountCard();
